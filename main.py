@@ -129,7 +129,8 @@ class MusicObject:
         if audio_type == "mp3":
             name, ext = os.path.splitext(filename)
             music_mp3_dir = f"{self.music_dir}/{name}.mp3"
-            os.system(f'ffmpeg -y -i "{audio_path_tmp}" -acodec libmp3lame -q:a 0 "{music_mp3_dir}"')
+            print(f"converting {music_mp3_dir}...")
+            os.system(f'ffmpeg -hide_banner -loglevel error -y -i "{audio_path_tmp}" -acodec libmp3lame -q:a 0 "{music_mp3_dir}"')
             os.remove(f"{audio_path_tmp}")
             audio_path = music_mp3_dir
         elif audio_type == "opus":
