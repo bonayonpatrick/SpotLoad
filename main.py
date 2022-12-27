@@ -40,15 +40,12 @@ class MusicObject:
         search_results = []
         count = 0
 
-        print(f"results: {tracks['limit']}")
-        print(f"total results: {tracks['total']}")
-        print()
-
+        print(f"[{tracks['limit']}/{tracks['total']}] Choose Music from Spotify:")
         for item in tracks["items"]:
             if item['type'] == "track":
                 song_name = item["name"]
                 artist = smart_join([artist["name"] for artist in item["artists"]])
-                print(f"[{count}] {artist} - {song_name}")
+                print(f"\t[{count}] {artist} - {song_name}")
 
                 count += 1
                 search_results.append(item)
@@ -87,7 +84,6 @@ class MusicObject:
         }
 
         search_query = f"\"{track_data['artist']} - {track_data['name']}\" topic auto generated"
-        print(f"yt-search: {search_query}")
 
         while True:
             try:
@@ -101,6 +97,7 @@ class MusicObject:
         yt_urls = []
         count = 0
 
+        print("\nChoose Audio from YouTube:")
         for result in results:
             title = result.get("title")
             video_id = result.get("id")
@@ -114,7 +111,7 @@ class MusicObject:
             delta = abs(total_sec - track_data["duration"])
 
             if delta < 2:
-                print(f"[{count}] [{channel_name}] {title}")
+                print(f"\t[{count}] [{channel_name}] {title}")
                 yt_urls.append(url)
                 count += 1
 
