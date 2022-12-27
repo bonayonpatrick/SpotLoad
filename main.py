@@ -33,7 +33,7 @@ class MusicObject:
 
         self.music_dir = "D:/(3) PATRICK DRIVE/Music"
 
-    def download(self, query):
+    def download(self, query, audio_type="opus"):
         results = self.spotify.search(q=query)
         tracks = results["tracks"]
 
@@ -53,9 +53,9 @@ class MusicObject:
                 count += 1
                 search_results.append(item)
 
-        return self.download_spotify_track(choose_index(search_results))
+        return self.download_spotify_track(choose_index(search_results), audio_type)
 
-    def download_spotify_track(self, track):
+    def download_spotify_track(self, track, audio_type="opus"):
         if isinstance(track, str):
             if track.startswith("https://"):
                 spt = urlparse(track).path.split("/")
@@ -118,15 +118,25 @@ class MusicObject:
                 yt_urls.append(url)
                 count += 1
 
+        return track["id"], self.youtube_music(choose_index(yt_urls), audio_type)
+
+    def youtube_music(self, url, audio_type="opus"):
         tmp_dir = f"{self.music_dir}/tmp_{int(datetime.now().timestamp())}"
-        os.system(f'yt-dlp -N 8 -f "bestaudio[ext=webm]" -o "{tmp_dir}/%(title)s.opus" "{choose_index(yt_urls)}"')
-
+        os.system(f'yt-dlp -N 8 -f "bestaudio[ext=webm]" -o "{tmp_dir}/%(title)s.opus" "{url}"')
         filename = os.listdir(tmp_dir)[0]
-        music_dir = f"{self.music_dir}/{filename}"
-        shutil.move(f"{tmp_dir}/{filename}", music_dir)
-        os.rmdir(tmp_dir)
+        audio_path_tmp, audio_path = f"{tmp_dir}/{filename}", f"{self.music_dir}/{filename}"
 
-        return track["id"], music_dir
+        if audio_type == "mp3":
+            name, ext = os.path.splitext(filename)
+            music_mp3_dir = f"{self.music_dir}/{name}.mp3"
+            os.system(f'ffmpeg -y -i "{audio_path_tmp}" -acodec libmp3lame -q:a 0 "{music_mp3_dir}"')
+            os.remove(f"{audio_path_tmp}")
+            audio_path = music_mp3_dir
+        elif audio_type == "opus":
+            shutil.move(audio_path_tmp, audio_path)
+
+        os.rmdir(tmp_dir)
+        return audio_path
 
     def load_spotify_track(self, track_id):
         result = self.spotify.track(track_id)
@@ -182,7 +192,6 @@ class MusicObject:
             audio = OggOpus(file_path)
 
         audio.clear()
-
         opus_tags = {key: val["opus"] for key, val in self.tag_presets.items()}
 
         for key, val in self.tags.items():
@@ -193,10 +202,7 @@ class MusicObject:
                 image.mime = "image/jpeg"
                 image.data = val
 
-                encoded_data = base64.b64encode(image.write())
-                cover_art_data = encoded_data.decode("ascii")
-
-                audio[opus_tags[key]] = cover_art_data
+                audio[opus_tags[key]] = base64.b64encode(image.write()).decode("ascii")
                 print(f"binding cover art...")
             else:
                 print(f"binding opus tag: {key}")
@@ -212,18 +218,24 @@ def main():
     if len(sys.argv) != 3:
         return
 
+    audio_type = "mp3"
+
     obj = MusicObject()
 
     if sys.argv[1] == "search":
-        track_id, local_file = obj.download(sys.argv[2])
+        track_id, local_file = obj.download(sys.argv[2], audio_type)
     elif sys.argv[1] == "track":
-        track_id, local_file = obj.download_spotify_track(sys.argv[2])
+        track_id, local_file = obj.download_spotify_track(sys.argv[2], audio_type)
     else:
         print(f"invalid selection {sys.argv[1]}")
         return
 
     obj.load_spotify_track(track_id)
-    obj.bind_opus(local_file)
+
+    if audio_type == "opus":
+        obj.bind_opus(local_file)
+    elif audio_type == "mp3":
+        obj.bind_mp3(local_file)
 
 
 if __name__ == '__main__':
