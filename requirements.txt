@@ -1,0 +1,6 @@
+mutagen
+requests
+spotipy
+youtube-search-python
+ffmpeg-python
+httpx
