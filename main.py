@@ -24,14 +24,14 @@ os.environ["SPOTIPY_CLIENT_SECRET"] = "212476d9b0f3472eaa762d90b19b0ba8"
 
 
 class MusicObject:
-    def __init__(self):
+    def __init__(self, music_dir):
         with open("tag_presets.json") as f:
             self.tag_presets = json.load(f)
 
         self.spotify = Spotify(auth_manager=SpotifyClientCredentials())
         self.tags = {}
 
-        self.music_dir = "D:/(3) PATRICK DRIVE/Music"
+        self.music_dir = music_dir
 
     def download(self, query, audio_type="opus"):
         results = self.spotify.search(q=query)
@@ -220,7 +220,7 @@ def main():
 
     audio_type = "mp3"
 
-    obj = MusicObject()
+    obj = MusicObject("D:/(3) PATRICK DRIVE/Music")
 
     if sys.argv[1] == "search":
         track_id, local_file = obj.download(sys.argv[2], audio_type)
