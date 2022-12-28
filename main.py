@@ -220,7 +220,7 @@ def main():
 
     audio_type = "opus"
 
-    obj = MusicObject("/storage/emulated/0/Music")
+    obj = MusicObject("D:/PATRICK DRIVE/Music")
 
     if sys.argv[1] == "search":
         track_id, local_file = obj.download(sys.argv[2], audio_type)

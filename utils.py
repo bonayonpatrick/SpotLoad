@@ -46,8 +46,8 @@ def reformat_opus(file_path):
     if not (tags := format_type.get("tags")):
         tags = streams[0]["tags"]
 
-    if not tags or tags["encoder"] != "google/video-file":
-        print(f"{filename} is already optimized")
+    if not tags or tags["encoder"] not in ["google/video-file", "google"]:
+        print(f"{filename} is already optimized: {tags}")
         return
 
     print("encoding...")
