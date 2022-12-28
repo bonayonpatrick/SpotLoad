@@ -10,11 +10,6 @@ from urllib.parse import urlparse
 import httpx
 import mutagen
 import requests
-from mutagen import id3
-from mutagen.easyid3 import ID3
-from mutagen.flac import Picture
-from mutagen.id3 import APIC, COMM, USLT
-from mutagen.oggopus import OggOpus
 from pathvalidate import sanitize_filename
 from spotipy import Spotify, SpotifyClientCredentials
 from youtubesearchpython import VideosSearch
@@ -104,7 +99,7 @@ class MusicObject:
             title = result.get("title")
             video_id = result.get("id")
             url = f"https://youtu.be/{video_id}"
-            views = result.get("viewCount").get("text")
+            # views = result.get("viewCount").get("text")
             channel_name = result.get("channel").get("name")
             duration = result.get("duration")
             duration_spl = duration.split(":")
@@ -129,7 +124,8 @@ class MusicObject:
             name, ext = os.path.splitext(filename)
             music_mp3_dir = f"{self.music_dir}/{name}.mp3"
             print(f"converting {music_mp3_dir}...")
-            os.system(f'ffmpeg -hide_banner -loglevel error -y -i "{audio_path_tmp}" -acodec libmp3lame -q:a 0 "{music_mp3_dir}"')
+            os.system(f'ffmpeg -hide_banner -loglevel error -y -i "{audio_path_tmp}" '
+                      f'-acodec libmp3lame -q:a 0 "{music_mp3_dir}"')
             os.remove(f"{audio_path_tmp}")
             audio_path = music_mp3_dir
         elif audio_type == "opus":
@@ -164,7 +160,10 @@ class MusicObject:
             self.tags["date"] = release_date
 
     def bind_mp3(self, file_path):
-        audio_file = ID3(file_path)
+        from mutagen import easyid3
+        from mutagen import id3
+
+        audio_file = easyid3.ID3(file_path)
         audio_file.clear()
 
         id3_tags = {key: val["id3"] for key, val in self.tag_presets.items()}
@@ -174,11 +173,11 @@ class MusicObject:
 
             if key == "album_art":
                 print("Binding APIC Cover")
-                audio_file["APIC"] = APIC(encoding=3, mime="image/jpeg", type=3, desc="Cover", data=val)
+                audio_file["APIC"] = id3.APIC(encoding=3, mime="image/jpeg", type=3, desc="Cover", data=val)
             elif key == "lyrics":
-                audio_file.add(COMM(encoding=3, text=val))
+                audio_file.add(id3.COMM(encoding=3, text=val))
             elif key == "comment":
-                audio_file["USLT::'eng'"] = USLT(encoding=3, lang=u"eng", desc=u"desc", text=val)
+                audio_file["USLT::'eng'"] = id3.USLT(encoding=3, lang=u"eng", desc=u"desc", text=val)
             else:
                 print(f"Converting {key} to {id3_tags[key]}")
                 audio_file[id3_tags[key]] = getattr(id3, id3_tags[key])(encoding=3, text=val)
@@ -186,6 +185,9 @@ class MusicObject:
         audio_file.save(v2_version=3)
 
     def bind_opus(self, file_path):
+        from mutagen.oggopus import OggOpus
+        from mutagen import flac
+
         try:
             audio = OggOpus(file_path)
         except mutagen.oggopus.OggOpusHeaderError:
@@ -197,7 +199,7 @@ class MusicObject:
 
         for key, val in self.tags.items():
             if key == "album_art":
-                image = Picture()
+                image = flac.Picture()
                 image.type = 3
                 image.desc = "Cover"
                 image.mime = "image/jpeg"
