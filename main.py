@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+import platform
 import shutil
 import sys
 from datetime import datetime
@@ -220,7 +221,10 @@ def main():
 
     audio_type = "opus"
 
-    obj = MusicObject("D:/PATRICK DRIVE/Music")
+    if platform.system() == "Windows":
+        obj = MusicObject("D:/PATRICK DRIVE/Music")
+    else:
+        obj = MusicObject("/storage/emulated/0/Music")
 
     if sys.argv[1] == "search":
         track_id, local_file = obj.download(sys.argv[2], audio_type)
