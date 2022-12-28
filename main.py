@@ -14,6 +14,7 @@ from mutagen.easyid3 import ID3
 from mutagen.flac import Picture
 from mutagen.id3 import APIC, COMM, USLT
 from mutagen.oggopus import OggOpus
+from pathvalidate import sanitize_filename
 from spotipy import Spotify, SpotifyClientCredentials
 from youtubesearchpython import VideosSearch
 
@@ -45,7 +46,7 @@ class MusicObject:
             if item['type'] == "track":
                 song_name = item["name"]
                 artist = smart_join([artist["name"] for artist in item["artists"]])
-                print(f"\t[{count}] {artist} - {song_name}")
+                print(f"  [{count}] {artist} - {song_name}")
 
                 count += 1
                 search_results.append(item)
@@ -83,7 +84,7 @@ class MusicObject:
             "duration": (track["duration_ms"] // 1000)
         }
 
-        search_query = f"\"{track_data['artist']} - {track_data['name']}\" topic auto generated"
+        search_query = f"\"{track_data['artist']} - {track_data['name']}\" audio"
 
         while True:
             try:
@@ -111,7 +112,7 @@ class MusicObject:
             delta = abs(total_sec - track_data["duration"])
 
             if delta < 2:
-                print(f"\t[{count}] [{channel_name}] {title}")
+                print(f"  [{count}] [{channel_name}] {title}")
                 yt_urls.append(url)
                 count += 1
 
@@ -144,8 +145,6 @@ class MusicObject:
         album_artists = smart_join([artist["name"] for artist in album["artists"]])
         release_date = album["release_date"]
 
-        assert len(release_date.split("-")) == 3, release_date
-
         self.tags = {
             "album_art": requests.get(album["images"][0]["url"]).content,
             "album": album["name"],
@@ -153,12 +152,15 @@ class MusicObject:
             "artist": artists,
             "track_number": str(result["track_number"]),
             "disc_number": str(result["disc_number"]),
-            "original_date": release_date,
-            "date": release_date,
-            "year": release_date.split("-")[0],
             "genre": "unknown",
             "album_artist": album_artists
         }
+
+        if len(dates := release_date.split("-")) == 3:
+            self.tags["year"] = dates[0]
+        else:
+            self.tags["original_date"] = release_date
+            self.tags["date"] = release_date
 
     def bind_mp3(self, file_path):
         audio_file = ID3(file_path)
@@ -209,16 +211,16 @@ class MusicObject:
         audio.save()
         new_name = f"{self.tags['artist']} - {self.tags['title']}.opus"
         print(f"renaming to {new_name}")
-        shutil.move(file_path, f"{os.path.dirname(file_path)}/{new_name}")
+        shutil.move(file_path, f"{os.path.dirname(file_path)}/{sanitize_filename(new_name)}")
 
 
 def main():
     if len(sys.argv) != 3:
         return
 
-    audio_type = "mp3"
+    audio_type = "opus"
 
-    obj = MusicObject("D:/(3) PATRICK DRIVE/Music")
+    obj = MusicObject("/storage/emulated/0/Music")
 
     if sys.argv[1] == "search":
         track_id, local_file = obj.download(sys.argv[2], audio_type)
