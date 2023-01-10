@@ -7,12 +7,11 @@ import sys
 from datetime import datetime
 from urllib.parse import urlparse
 
-import httpx
 import mutagen
 import requests
+import ytm
 from pathvalidate import sanitize_filename
 from spotipy import Spotify, SpotifyClientCredentials
-from youtubesearchpython import VideosSearch
 
 from utils import smart_join, reformat_opus, choose_index
 
@@ -80,36 +79,20 @@ class MusicObject:
             "duration": (track["duration_ms"] // 1000)
         }
 
-        search_query = f"\"{track_data['artist']} - {track_data['name']}\" audio"
-
-        while True:
-            try:
-                videos = VideosSearch(search_query, limit=50)
-                break
-            except httpx.ConnectError:
-                print("connection error")
-
-        results = videos.result().get("result")
-
         yt_urls = []
         count = 0
 
-        print("\nChoose Audio from YouTube:")
-        for result in results:
-            title = result.get("title")
-            video_id = result.get("id")
-            url = f"https://youtu.be/{video_id}"
-            # views = result.get("viewCount").get("text")
-            channel_name = result.get("channel").get("name")
-            duration = result.get("duration")
-            duration_spl = duration.split(":")
-            minutes, seconds = int(duration_spl[0]), int(duration_spl[1])
-            total_sec = (minutes * 60) + seconds
-            delta = abs(total_sec - track_data["duration"])
+        api = ytm.YouTubeMusic()
+        results = api.search_songs(f"{track_data['artist']} - {track_data['name']}")
 
-            if delta < 2:
-                print(f"  [{count}] [{channel_name}] {title}")
-                yt_urls.append(url)
+        print("\nChoose Audio from YouTube:")
+        for i, result in enumerate(results["items"]):
+            artist = smart_join([artist['name'] for artist in result['artists']])
+            delta = abs(result['duration'] - track_data["duration"])
+
+            if delta < 3:
+                print(f"[{i}] {artist} - {result['name']}")
+                yt_urls.append(f"https://youtu.be/{result['id']}")
                 count += 1
 
         return track["id"], self.youtube_music(choose_index(yt_urls), audio_type)
