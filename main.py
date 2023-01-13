@@ -204,10 +204,13 @@ def main():
     if len(sys.argv) != 3:
         return
 
-    audio_type = "opus"
+    if "mp3" in sys.argv:
+        audio_type = "mp3"
+    else:
+        audio_type = "opus"
 
     if platform.system() == "Windows":
-        obj = MusicObject("D:/PATRICK DRIVE/Music")
+        obj = MusicObject("D:/(3) PATRICK DRIVE/Music")
     else:
         obj = MusicObject("/storage/emulated/0/Music")
 
