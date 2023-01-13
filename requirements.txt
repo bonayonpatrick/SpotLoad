@@ -5,4 +5,3 @@ youtube-search-python
 ffmpeg-python
 httpx
 pathvalidate
-requests_retry
