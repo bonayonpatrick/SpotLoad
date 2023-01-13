@@ -13,7 +13,7 @@ import ytm
 from pathvalidate import sanitize_filename
 from spotipy import Spotify, SpotifyClientCredentials
 
-from utils import smart_join, reformat_opus, choose_index
+from utils import smart_join, reformat_opus, choose_index, retry_on_fail
 
 os.environ["SPOTIPY_CLIENT_ID"] = "5f573c9620494bae87890c0f08a60293"
 os.environ["SPOTIPY_CLIENT_SECRET"] = "212476d9b0f3472eaa762d90b19b0ba8"
@@ -85,13 +85,13 @@ class MusicObject:
         api = ytm.YouTubeMusic()
         results = api.search_songs(f"{track_data['artist']} - {track_data['name']}")
 
-        print("\nChoose Audio from YouTube:")
-        for i, result in enumerate(results["items"]):
+        print(f"\n[{len(results)}] Choose Audio from YouTube:")
+        for result in results["items"]:
             artist = smart_join([artist['name'] for artist in result['artists']])
             delta = abs(result['duration'] - track_data["duration"])
 
             if delta < 3:
-                print(f"[{i}] {artist} - {result['name']}")
+                print(f"[{count}] {artist} - {result['name']}")
                 yt_urls.append(f"https://youtu.be/{result['id']}")
                 count += 1
 
@@ -126,7 +126,7 @@ class MusicObject:
         release_date = album["release_date"]
 
         self.tags = {
-            "album_art": requests.get(album["images"][0]["url"]).content,
+            "album_art": retry_on_fail(lambda: requests.get(album["images"][0]["url"]).content),
             "album": album["name"],
             "title": result["name"],
             "artist": artists,

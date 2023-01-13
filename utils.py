@@ -2,6 +2,21 @@ import os
 import shutil
 
 import ffmpeg
+import requests
+
+
+def retry_on_fail(call, *args, **kwargs):
+    kwargs.setdefault("max_retries", 10)
+    max_retries = kwargs.pop("max_retries")
+
+    retries = 0
+
+    while retries < max_retries:
+        try:
+            return call(*args, **kwargs)
+        except requests.exceptions.ConnectionError:
+            print(f"connection failed: {retries}")
+            retries += 1
 
 
 def choose_index(items):
