@@ -5,3 +5,6 @@ youtube-search-python
 ffmpeg-python
 httpx
 pathvalidate
+yt-dlp
+
+git+https://github.com/tombulled/python-youtube-music.git
