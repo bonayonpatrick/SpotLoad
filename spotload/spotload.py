@@ -101,7 +101,7 @@ class Spotload:
         api = ytm.YouTubeMusic()
         results = api.search_songs(f"{smart_join(artists)} - {track['name']}")
 
-        ytm_chooser = Chooser(f"\n[{len(results)}] Choose Audio from YouTube", auto=auto)
+        ytm_chooser = Chooser(f"\n[{len(results['items'])}] Choose Audio from YouTube", auto=auto)
         for result in results["items"]:
             artist = smart_join([artist['name'] for artist in result['artists']])
 
