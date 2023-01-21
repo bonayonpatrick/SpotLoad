@@ -2,6 +2,7 @@ import argparse
 import os
 import shlex
 import argparse
+import sys
 
 from spotload.spotload import Spotload
 
@@ -24,7 +25,11 @@ def main():
     parser.add_argument("--dir", type=valid_directory, metavar="directory", default=os.getcwd())
     parser.add_argument("queries", nargs="*")
 
-    args = parser.parse_args(shlex.split('--auto --format mp3 "dive ed sheeran"'))
+    if len(sys.argv) == 1:
+        parser.print_help()
+        exit()
+
+    args = parser.parse_args()
 
     if len(args.queries) == 0:
         print("Error: At least one query is required.")
