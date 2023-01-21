@@ -19,10 +19,15 @@ def retry_on_fail(call, *args, **kwargs):
             retries += 1
 
 
-def choose_index(items):
+def choose_index(title, items):
+    for item in items:
+        print()
     while True:
         try:
-            return items[int(input("please select an index: "))]
+            if (index := input("please select an index: ")) == 0:
+                return
+
+            return items[index]
         except (ValueError, IndexError):
             print("invalid index")
 
