@@ -38,15 +38,15 @@ def choose_from_spotify(query, auto=False):
     audio_metadata = {
         "album": track["album"]["name"],
         "title": track["name"],
-        "artists": [artist["name"] for artist in track["artists"]],
+        "artist": [artist["name"] for artist in track["artists"]],
         "track_number": str(track["track_number"]),
         "disc_number": str(track["disc_number"]),
     }
 
     print("downloading album art...")
-    audio_metadata["album_art"] = base64.b64encode(retry_on_fail(
+    audio_metadata["album_art"] = retry_on_fail(
         lambda: requests.get(track["album"]["images"][0]["url"]).content
-    )).decode()
+    )
 
     print("fetching album genre...")
     audio_metadata["genre"] = spotify.artist(track["artists"][0]["external_urls"]["spotify"])["genres"]

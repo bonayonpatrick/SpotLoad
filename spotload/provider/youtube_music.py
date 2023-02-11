@@ -24,7 +24,7 @@ def choose_from_youtube_music(query, duration=0, delta=3, auto=False):
         "duration": video["duration"],
         "metadata": {
             "title": video["name"],
-            "artists": [artist["name"] for artist in video["artists"]],
+            "artist": [artist["name"] for artist in video["artists"]],
             "album": video["album"]["name"]
         }
     }
