@@ -9,12 +9,16 @@ import ytm
 from pathvalidate import sanitize_filename
 from spotipy import Spotify, SpotifyClientCredentials
 
+
 from .chooser import Chooser
+from .provider.spotify import choose_from_spotify
+from .provider.youtube import choose_from_youtube
+from .provider.youtube_music import choose_from_youtube_music
 from .utils import retry_on_fail, smart_join, reformat_opus
 
 
 class Spotload:
-    def __init__(self, directory):
+    def __init__(self, directory=os.getcwd()):
         self.directory = directory
 
         self.tag_presets = {
@@ -72,65 +76,30 @@ class Spotload:
             }
         }
 
-        self.ytm = ytm.YouTubeMusic()
-
-        # using spotdl token
-        self.spotify = Spotify(auth_manager=SpotifyClientCredentials(
-            client_id="5f573c9620494bae87890c0f08a60293",
-            client_secret="212476d9b0f3472eaa762d90b19b0ba8"
-        ))
-
-    def choose(self, query, auto=True):
-        results = self.spotify.search(q=query)
-        tracks = results["tracks"]
-
-        spotify_chooser = Chooser(f"[{tracks['limit']}/{tracks['total']}] Choose Music from Spotify", auto=auto)
-
-        for item in tracks["items"]:
-            if item['type'] == "track":
-                song_name = item["name"]
-                artist = smart_join([artist["name"] for artist in item["artists"]])
-
-                spotify_chooser.add_item(f"{artist} - {song_name}", item)
-
-        if (track := spotify_chooser.choose()) is None:
+    def choose(self, query, auto=True, use_ytm=True):
+        if (track := choose_from_spotify(query, auto=auto)) is None:
             return
 
-        artists = [artist["name"] for artist in track["artists"]]
+        metadata = track["metadata"]
 
-        api = ytm.YouTubeMusic()
-        results = api.search_songs(f"{smart_join(artists)} - {track['name']}")
+        if use_ytm:
+            if (video := choose_from_youtube_music(
+                f"{smart_join(metadata['artists'])} - {metadata['title']}",
+                duration=track["duration"],
+                auto=auto
+            )) is None:
+                return
 
-        ytm_chooser = Chooser(f"\n[{len(results['items'])}] Choose Audio from YouTube", auto=auto)
-        for result in results["items"]:
-            artist = smart_join([artist['name'] for artist in result['artists']])
+            metadata["title"] = video["metadata"]["title"]
+            metadata["artists"] = video["metadata"]["artists"]
 
-            # calculate delta to match the closest result
-            if abs(result['duration'] - (track["duration_ms"] // 1000)) < 3:
-                ytm_chooser.add_item(f"{artist} - {result['name']}", result)
-
-        if (video := ytm_chooser.choose()) is None:
-            return
-
-        album = track["album"]
-        release_date = album["release_date"]
-        ytm_artists = [artist["name"] for artist in video["artists"]]
-
-        metadata = {
-            "album_art": retry_on_fail(lambda: requests.get(track["album"]["images"][0]["url"]).content),
-            "album": track["album"]["name"],
-            "title": video["name"],
-            "artist": ytm_artists,
-            "track_number": str(track["track_number"]),
-            "disc_number": str(track["disc_number"]),
-            "genre": self.spotify.artist(track["artists"][0]["external_urls"]["spotify"])["genres"]
-        }
-
-        if len(dates := release_date.split("-")) == 3:
-            metadata["year"] = dates[0]
         else:
-            metadata["original_date"] = release_date
-            metadata["date"] = release_date
+            if (video := choose_from_youtube(
+                f"{smart_join(metadata['artists'])} - {metadata['title']}",
+                duration=track["duration"],
+                auto=auto
+            )) is None:
+                return
 
         return track["id"], video["id"], metadata
 

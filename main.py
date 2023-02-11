@@ -21,6 +21,7 @@ def main():
     parser = argparse.ArgumentParser(prog="spotload")
     parser.add_argument("--format", choices=["mp3", "opus"], default="opus")
     parser.add_argument("--type", choices=["search", "track"], default="search")
+    parser.add_argument("--use-yt", action="store_true", default="search")
     parser.add_argument("--auto", action="store_true")
     parser.add_argument("--dir", type=valid_directory, metavar="directory", default=os.getcwd())
     parser.add_argument("queries", nargs="*")
@@ -42,7 +43,10 @@ def main():
     spotload = Spotload(args.dir)
 
     for query in args.queries:
-        track_id, video_id, metadata = spotload.choose(query, auto=args.auto)
+        result = spotload.choose(query, auto=args.auto, use_ytm=not args.use_yt)
+        if result is None:
+            exit()
+        track_id, video_id, metadata = result
         spotload.download(video_id, metadata=metadata, audio_type=args.format)
 
 

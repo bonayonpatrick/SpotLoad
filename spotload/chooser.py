@@ -17,7 +17,8 @@ class Chooser:
 
         if self.auto:
             if len(self.items) == 0:
-                raise ValueError("no items")
+                print("no items")
+                return
             return self.items[0]
 
         if len(self.items) == 1:
@@ -25,11 +26,10 @@ class Chooser:
             return self.items[0]
 
         while True:
-
             try:
-                if (index := input("please select an index: ")) == 0:
+                if (index := int(input("please select an index: "))) == 0:
                     return
 
-                return self.items[int(index)-1]
+                return self.items[index-1]
             except (ValueError, IndexError):
                 print(f"invalid index: {index}")
