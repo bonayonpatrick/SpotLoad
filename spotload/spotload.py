@@ -83,6 +83,7 @@ class Spotload:
         metadata = track["metadata"]
 
         if use_ytm:
+            print("using youtube-music")
             if (video := choose_from_youtube_music(
                 f"{smart_join(metadata['artist'])} - {metadata['title']}",
                 duration=track["duration"],
@@ -94,6 +95,7 @@ class Spotload:
             metadata["artist"] = video["metadata"]["artist"]
 
         else:
+            print("using youtube")
             if (video := choose_from_youtube(
                 f"{smart_join(metadata['artist'])} - {metadata['title']}",
                 duration=track["duration"],
