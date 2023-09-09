@@ -1,13 +1,14 @@
 import argparse
 import os
-import shlex
-import argparse
 import sys
 
-from spotload.spotload import Spotload
+from spotload import Spotload
 
 
 def valid_directory(pathname):
+    if not os.path.exists(pathname):
+        os.makedirs(pathname)
+
     if not os.access(pathname, os.R_OK):
         raise argparse.ArgumentTypeError(f"{pathname} is not accessible.")
 
@@ -15,6 +16,10 @@ def valid_directory(pathname):
         raise argparse.ArgumentTypeError(f"{pathname} is not a valid directory.")
 
     return pathname
+
+# TODO: debug prefixes
+# TODO: clean up verbose
+# TODO: remove some external libraries such as yt-dlp and spotdl
 
 
 def main():
@@ -52,4 +57,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass

@@ -41,7 +41,7 @@ def smart_join(items):
 
 
 def reformat_opus(file_path):
-    print(f"loading {file_path}")
+    print(f"optimizing opus metadata...")
 
     dirpath, filename = os.path.dirname(file_path), os.path.basename(file_path)
 
@@ -70,7 +70,7 @@ def reformat_opus(file_path):
         print(f"{filename} is already optimized: {tags}")
         return
 
-    print("encoding...")
+    # print("encoding...")
     os.system(f'ffmpeg -hide_banner -loglevel error -y -i "{file_path}" -acodec copy "{tmp_file}"')
 
     shutil.copyfile(tmp_file, file_path)
@@ -92,3 +92,28 @@ def load_album_art(filepath):
     os.remove(temp)
 
     return image_bytes
+
+
+def choose_items(title: str, items: list, prefix: str = None, callback: callable = None, auto_select: bool = False):
+    if not items:
+        print("no results")
+        exit(0)
+    print(title)
+    for i, item in enumerate(items, 1):
+        print(f" {str(i):>2}: {item}")
+    while True:
+        try:
+            print("<<: ", end="")
+            if auto_select:
+                print("1")
+                return None, 0
+            _index = input()
+            if prefix and _index.startswith(prefix):
+                if value := _index.removeprefix(prefix):
+                    if ret_value := callback(value):
+                        return ret_value, None
+            if 0 < (index := int(_index)) <= len(items):
+                return None, index-1
+            continue
+        except ValueError:
+            pass

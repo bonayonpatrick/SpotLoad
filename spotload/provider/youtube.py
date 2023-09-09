@@ -1,6 +1,6 @@
 from youtubesearchpython import VideosSearch
 
-from spotload.chooser import Chooser
+from ..chooser import Chooser
 
 
 def choose_from_youtube(query, duration=0, delta=3, auto=False):

@@ -1,23 +1,33 @@
 import ytm
 
-from spotload.chooser import Chooser
-from spotload.utils import smart_join
+from ..utils import smart_join, choose_items
 
 
 def choose_from_youtube_music(query, duration=0, delta=3, auto=False):
     api = ytm.YouTubeMusic()
-    results = api.search_songs(query)
+    items = api.search_songs(query)["items"]
 
-    ytm_chooser = Chooser(f"\n[{len(results['items'])}] Choose Audio from YouTube Music", auto=auto)
-    for result in results["items"]:
-        artist = smart_join([artist['name'] for artist in result['artists']])
-
+    _items = {}
+    for item in items:
+        artist = smart_join([artist['name'] for artist in item['artists']])
         # calculate delta to match the closest result
-        if (abs(result['duration'] - duration) < delta) or duration == 0:
-            ytm_chooser.add_item(f"{artist} - {result['name']}", result)
+        if (abs(item['duration'] - duration) < delta) or duration == 0:
+            _items[f"{artist} - {item['name']}"] = item
 
-    if (video := ytm_chooser.choose()) is None:
-        return
+    def _prefix_action(video_id):
+        if result := api.song(video_id):
+            return result
+        print("invalid video id")
+
+    video, index = choose_items(
+        title=f"Choose Audio from YouTube Music",
+        items=_items.keys(),
+        prefix="id#",
+        callback=_prefix_action,
+        auto_select=auto
+    )
+
+    video = video or list(_items.values())[index]
 
     return {
         "id": video["id"],
