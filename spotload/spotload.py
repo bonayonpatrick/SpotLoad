@@ -3,13 +3,48 @@ import os
 import shutil
 from datetime import datetime
 
+import ffmpeg
 import mutagen
 from pathvalidate import sanitize_filename
 
-from .provider.spotify import choose_from_spotify
-from .provider.youtube import choose_from_youtube
-from .provider.youtube_music import choose_from_youtube_music
-from .utils import smart_join, reformat_opus
+from .utils import concat_comma
+
+
+def reformat_opus(file_path):
+    print(f"optimizing opus metadata...")
+
+    dirpath, filename = os.path.dirname(file_path), os.path.basename(file_path)
+
+    tmp_dir = f"{dirpath}/tmp"
+    tmp_file = os.path.join(tmp_dir, filename)
+
+    if not os.path.exists(tmp_dir):
+        os.makedirs(tmp_dir)
+
+    probe = ffmpeg.probe(file_path)
+    format_type = probe["format"]
+    streams = probe["streams"]
+
+    if (codec := streams[0]["codec_name"]) != "opus":
+        print(f"type {codec} not supported.")
+        return
+
+    if not format_type:
+        print("invalid format type.")
+        return
+
+    if not (tags := format_type.get("tags")):
+        tags = streams[0]["tags"]
+
+    if not tags or tags["encoder"] not in ["google/video-file", "google"]:
+        print(f"{filename} is already optimized: {tags}")
+        return
+
+    # print("encoding...")
+    os.system(f'ffmpeg -hide_banner -loglevel error -y -i "{file_path}" -acodec copy "{tmp_file}"')
+
+    shutil.copyfile(tmp_file, file_path)
+    shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
 class Spotload:
@@ -71,34 +106,6 @@ class Spotload:
             }
         }
 
-    def choose(self, query, auto=True, use_ytm=True):
-        if (track := choose_from_spotify(query, auto=auto)) is None:
-            return
-
-        metadata = track["metadata"]
-
-        if use_ytm:
-            # print("using youtube-music")
-            if (video := choose_from_youtube_music(
-                f"{smart_join(metadata['artist'])} - {metadata['title']}",
-                duration=track["duration"],
-                auto=auto
-            )) is None:
-                return
-
-            metadata["title"] = video["metadata"]["title"]
-            metadata["artist"] = video["metadata"]["artist"]
-        else:
-            # print("using youtube")
-            if (video := choose_from_youtube(
-                f"{smart_join(metadata['artist'])} - {metadata['title']} audio",
-                duration=track["duration"],
-                auto=auto
-            )) is None:
-                return
-
-        return track["id"], video["id"], metadata
-
     def download(self, video_id, metadata, audio_type="opus"):
         tmp_dir = f"{self.directory}/tmp_{int(datetime.now().timestamp())}"
         os.system(f'yt-dlp -N 8 -f "bestaudio[ext=webm]" -o "{tmp_dir}/%(title)s.opus" "https://youtu.be/{video_id}"')
@@ -153,7 +160,7 @@ class Spotload:
                 audio_file[id3_tags[key]] = getattr(id3, id3_tags[key])(encoding=3, text=val)
 
         audio_file.save(v2_version=3)
-        new_name = f"{smart_join(tags['artist'])} - {tags['title']}.mp3"
+        new_name = f"{concat_comma(tags['artist'])} - {tags['title']}.mp3"
         # print(f"renaming to {new_name}")
         shutil.move(file_path, f"{os.path.dirname(file_path)}/{sanitize_filename(new_name)}")
 
@@ -185,6 +192,6 @@ class Spotload:
                 audio[opus_tags[key]] = val
 
         audio.save()
-        new_name = f"{smart_join(tags['artist'])} - {tags['title']}.opus"
+        new_name = f"{concat_comma(tags['artist'])} - {tags['title']}.opus"
         # print(f"renaming to {new_name}")
         shutil.move(file_path, f"{os.path.dirname(file_path)}/{sanitize_filename(new_name)}")

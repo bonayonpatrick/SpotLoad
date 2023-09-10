@@ -3,7 +3,6 @@ requests
 spotipy
 youtube-search-python
 ffmpeg-python
-httpx
 pathvalidate
 yt-dlp
 

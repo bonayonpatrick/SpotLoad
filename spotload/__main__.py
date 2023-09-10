@@ -2,7 +2,9 @@ import argparse
 import os
 import sys
 
-from spotload import Spotload
+import requests
+
+from spotload import Spotload, providers
 
 
 def valid_directory(pathname):
@@ -16,10 +18,6 @@ def valid_directory(pathname):
         raise argparse.ArgumentTypeError(f"{pathname} is not a valid directory.")
 
     return pathname
-
-# TODO: debug prefixes
-# TODO: clean up verbose
-# TODO: remove some external libraries such as yt-dlp and spotdl
 
 
 def main():
@@ -49,7 +47,7 @@ def main():
     spotload = Spotload(args.dir)
 
     for query in args.queries:
-        result = spotload.choose(query, auto=args.auto, use_ytm=not args.use_yt)
+        result = providers.search_query(query, auto=args.auto, use_ytm=not args.use_yt)
         if result is None:
             exit()
         track_id, video_id, metadata = result
@@ -61,3 +59,5 @@ if __name__ == '__main__':
         main()
     except KeyboardInterrupt:
         pass
+    except requests.exceptions.ConnectionError:
+        print("no internet connection")
