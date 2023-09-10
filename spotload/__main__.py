@@ -45,7 +45,7 @@ def main():
         with open(path, "w") as f:
             f.write(default_dir)
         return
-    elif os.path.exists(default_dir):
+    elif os.path.exists(path):
         with open(path) as f:
             default_dir = f.read()
 
