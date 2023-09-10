@@ -30,7 +30,7 @@ def main():
     parser.add_argument("--bare-yt", action="store_true", default=False)
     parser.add_argument("--default-dir", type=valid_directory)
     parser.add_argument("--auto", action="store_true")
-    parser.add_argument("--dir", type=valid_directory, metavar="directory", default=os.getcwd())
+    parser.add_argument("--dir", type=valid_directory, metavar="directory")
     parser.add_argument("queries", nargs="*")
 
     if len(sys.argv) == 1:
