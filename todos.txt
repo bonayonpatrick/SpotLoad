@@ -1,0 +1,2 @@
+# TODO: clean up verbose
+# TODO: remove some external libraries such as yt-dlp and spotdl

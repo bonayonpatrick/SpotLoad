@@ -1,9 +1,0 @@
-mutagen
-requests
-spotipy
-youtube-search-python
-ffmpeg-python
-pathvalidate
-yt-dlp
-
-git+https://github.com/tombulled/python-youtube-music.git

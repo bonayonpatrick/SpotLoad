@@ -41,11 +41,14 @@ def choose_from_youtube_music(query, duration=0, delta=3, auto=False):
     items = api.search_songs(query)["items"]
 
     _items = {}
-    for item in items:
-        artist = concat_comma([artist['name'] for artist in item['artists']])
-        # calculate delta to match the closest result
-        if (abs(item['duration'] - duration) < delta) or duration == 0:
-            _items[f"{artist} - {item['name']}"] = item
+    try:
+        for item in items:
+            artist = concat_comma([artist['name'] for artist in item['artists']])
+            # calculate delta to match the closest result
+            if (abs(item['duration'] - duration) < delta) or duration == 0:
+                _items[f"{artist} - {item['name']}"] = item
+    except TypeError:
+        return choose_from_youtube_music(query, duration, delta, auto)
 
     def _prefix_action(video_id):
         if result := api.song(video_id):
