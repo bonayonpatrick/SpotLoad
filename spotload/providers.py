@@ -2,8 +2,9 @@ import requests
 
 from youtubesearchpython import VideosSearch
 
-from . import spotify, ytm
+from . import spotify
 from .utils import retry_on_fail, concat_comma, choose_items
+from .ytm import YouTubeMusic
 
 
 def choose_from_youtube(query, duration=0, delta=3, auto=False):
@@ -37,7 +38,7 @@ def choose_from_youtube(query, duration=0, delta=3, auto=False):
 
 
 def choose_from_youtube_music(query, duration=0, delta=3, auto=False):
-    api = ytm.YouTubeMusic()
+    api = YouTubeMusic()
     items = api.search_songs(query)["items"]
 
     _items = {}
