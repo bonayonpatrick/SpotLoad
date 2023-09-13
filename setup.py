@@ -3,7 +3,7 @@ import setuptools
 setuptools.setup(
     name='SpotLoad',
     version='1.0',
-    packages=["spotload", "ytm"],
+    packages=["spotload"],
     entry_points={
         'console_scripts': [
             'spotload = spotload.__main__:run',

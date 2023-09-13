@@ -1,8 +1,8 @@
 import requests
-import ytm
+
 from youtubesearchpython import VideosSearch
 
-from . import spotify
+from . import spotify, ytm
 from .utils import retry_on_fail, concat_comma, choose_items
 
 
