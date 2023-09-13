@@ -9,12 +9,14 @@ setuptools.setup(
             'spotload = spotload.__main__:run',
         ]
     },
+    python_requires=">=3.10",
     dependency_links=[
-        "ytm @ git+https://github.com/tombulled/python-youtube-music.git#master"
+        "https://github.com/tombulled/python-youtube-music.git"
     ],
     install_requires=[
         "requests==2.28.2",
         "urllib3==1.26.13",
+        "ffmpeg-python==0.2.0"
         "spotipy==2.22.0",
         "mutagen==1.46.0",
         "pathvalidate==2.5.2"
