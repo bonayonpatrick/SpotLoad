@@ -11,8 +11,7 @@ setuptools.setup(
     },
     python_requires=">=3.10",
     install_requires=[
-        "requests==2.28.2",
-        "urllib3==1.26.13",
+        "requests",
         "ffmpeg-python==0.2.0",
         "spotipy==2.22.0",
         "mutagen==1.46.0",
