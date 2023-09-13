@@ -1,4 +1,5 @@
 import requests
+import ytm
 from youtubesearchpython import VideosSearch
 
 from . import spotify
@@ -15,7 +16,7 @@ def choose_from_youtube(query, duration=0, delta=3, auto=False):
         total_sec = (minutes * 60) + seconds
 
         # calculate delta to match the closest result
-        if (abs(total_sec - duration) < delta) or duration == 0 and result["type"] == "video":
+        if ((abs(total_sec - duration) < delta) or duration == 0) and result["type"] == "video":
             result["duration"] = total_sec
             _items[f"{result.get('channel').get('name')} - {result['title']}"] = result
 

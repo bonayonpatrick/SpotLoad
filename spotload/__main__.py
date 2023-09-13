@@ -3,6 +3,7 @@ import os
 import sys
 
 import requests
+from spotload.providers import choose_from_youtube
 
 from spotload import Spotload, providers
 
@@ -28,7 +29,9 @@ def main():
     parser.add_argument("--type", choices=["search", "track"], default="search")
     parser.add_argument("--use-yt", action="store_true", default=False)
     parser.add_argument("--bare-yt", action="store_true", default=False)
+
     parser.add_argument("--only-yt", action="store_true", default=False)
+
     parser.add_argument("--default-dir", type=valid_directory)
     parser.add_argument("--auto", action="store_true")
     parser.add_argument("--dir", type=valid_directory, metavar="directory")
@@ -61,7 +64,17 @@ def main():
     spotload = Spotload(args.dir or default_dir)
 
     if args.only_yt:
-        spotload.download_video(spotload.directory, args.queries)
+        search_queries, video_urls = [], []
+        for param in args.queries:
+            if param.startswith("https://"):
+                video_urls.append(param)
+            else:
+                search_queries.append(param)
+        for param in search_queries:
+            if video_id := choose_from_youtube(param):
+                video_urls.append(f"https://youtu.be/{video_id}")
+        spotload.download_video(spotload.directory, video_urls)
+        return
 
     for query in args.queries:
         result = providers.search_query(query, auto=args.auto, use_ytm=not args.use_yt)
