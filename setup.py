@@ -16,7 +16,6 @@ setuptools.setup(
         "ffmpeg-python==0.2.0",
         "spotipy==2.22.0",
         "mutagen==1.46.0",
-        "pathvalidate==2.5.2",
-        "git+https://github.com/tombulled/python-youtube-music.git"
+        "pathvalidate==2.5.2"
     ],
 )
