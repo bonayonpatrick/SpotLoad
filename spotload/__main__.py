@@ -28,6 +28,7 @@ def main():
     parser.add_argument("--type", choices=["search", "track"], default="search")
     parser.add_argument("--use-yt", action="store_true", default=False)
     parser.add_argument("--bare-yt", action="store_true", default=False)
+    parser.add_argument("--only-yt", action="store_true", default=False)
     parser.add_argument("--default-dir", type=valid_directory)
     parser.add_argument("--auto", action="store_true")
     parser.add_argument("--dir", type=valid_directory, metavar="directory")
@@ -59,6 +60,9 @@ def main():
 
     spotload = Spotload(args.dir or default_dir)
 
+    if args.only_yt:
+        spotload.download_video(spotload.directory, args.queries)
+
     for query in args.queries:
         result = providers.search_query(query, auto=args.auto, use_ytm=not args.use_yt)
         if result is None:
@@ -74,6 +78,7 @@ def run():
         pass
     except requests.exceptions.ConnectionError:
         print("no internet connection")
+
 
 if __name__ == '__main__':
     run()

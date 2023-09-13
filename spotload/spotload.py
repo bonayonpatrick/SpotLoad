@@ -106,9 +106,23 @@ class Spotload:
             }
         }
 
+    def download_video(self, directory, urls: str | list[str]):
+        if isinstance(urls, str):
+            urls = [urls]
+
+        return os.system(" ".join([
+            f'yt-dlp',
+            f'-f "bestaudio[ext=webm]"'
+            f'-o "{directory}/%(title)s.opus"',
+            f'--external-downloader aria2c' if shutil.which("aria2c") else "",
+            f'--fragment-retries 999',
+            f'--abort-on-unavailable-fragment',
+            " ".join([f'"{url}"' for url in urls])
+        ]))
+
     def download(self, video_id, metadata, audio_type="opus"):
         tmp_dir = f"{self.directory}/tmp_{int(datetime.now().timestamp())}"
-        os.system(f'yt-dlp -N 8 -f "bestaudio[ext=webm]" -o "{tmp_dir}/%(title)s.opus" "https://youtu.be/{video_id}"')
+        self.download_video(tmp_dir, f"https://youtu.be/{video_id}")
         print("downloading resources.", end="")
         if album_art := metadata["album_art"]:
             print(".", end="")
