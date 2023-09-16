@@ -106,7 +106,7 @@ class Spotload:
             }
         }
 
-    def download_video(self, directory, urls: str | list[str]):
+    def download_video(self, directory, urls):
         if isinstance(urls, str):
             urls = [urls]
 

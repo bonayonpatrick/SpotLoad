@@ -9,7 +9,7 @@ setuptools.setup(
             'spotload = spotload.__main__:run',
         ]
     },
-    python_requires=">=3.10",
+    python_requires=">=3.8",
     install_requires=[
         "requests",
         "ffmpeg-python==0.2.0",

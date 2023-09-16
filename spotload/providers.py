@@ -31,9 +31,7 @@ def choose_from_youtube(query, duration=0, delta=3, auto=False):
         callback=_prefix_action,
     )
 
-    video: dict = list(_items.values())[index]
-
-    return video_id or video["id"]
+    return video_id or list(_items.values())[index]["id"]
 
 
 def choose_from_youtube_music(query, duration=0, delta=3, auto=False):
