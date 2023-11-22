@@ -77,6 +77,9 @@ def main():
         return
 
     for query in args.queries:
+        if not query:
+            continue
+
         result = providers.search_query(query, auto=args.auto, use_ytm=not args.use_yt)
         if result is None:
             exit()
