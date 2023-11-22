@@ -33,7 +33,7 @@ def choose_items(title: str, items: list, prefix: str = None, callback: callable
     while True:
         try:
             print("<<: ", end="")
-            if auto_select:
+            if auto_select or len(items) == 1:
                 print("1")
                 return None, 0
             _index = input()
