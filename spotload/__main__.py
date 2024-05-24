@@ -6,7 +6,7 @@ from spotload.providers import choose_from_youtube_music, search_query
 from spotload.utils import valid_directory, set_default_directory
 
 
-def main():
+def run():
     parser = argparse.ArgumentParser(prog='spotload')
     parser.add_argument('--mode', choices=['spot-ytm', 'spot-yt', 'ytm', 'yt'], default='spot-ytm')
     parser.add_argument('--format', choices=['mp3', 'opus'], default='opus')
@@ -33,4 +33,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run()
