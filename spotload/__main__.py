@@ -24,10 +24,10 @@ def run():
 
     for query in filter(lambda x: bool(x.strip()), args.queries):
         if args.mode in ['ytm', 'yt']:
-            metadata = choose_from_youtube_music(query, use_yt=args.mode == 'yt')
+            metadata = choose_from_youtube_music(query, auto=args.auto, use_yt=args.mode == 'yt')
             spotload.download_video(spotload.directory, f'https://youtu.be/{metadata["id"]}')
         else:
-            result = search_query(query, use_yt=args.mode == 'spot-yt')
+            result = search_query(query, auto=args.auto, use_yt=args.mode == 'spot-yt')
             track_id, video_id, metadata = result
             spotload.download(video_id=video_id, metadata=metadata, audio_type=args.format)
 

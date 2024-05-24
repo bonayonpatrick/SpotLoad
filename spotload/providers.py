@@ -99,7 +99,7 @@ def choose_from_youtube_music(query: str, duration=0, delta=3, auto=False, use_y
     }
 
 
-def search_query(query, auto=True, use_yt=False):
+def search_query(query, auto=False, use_yt=False):
     if (track := choose_from_spotify(query, auto=auto)) is None:
         return
 
