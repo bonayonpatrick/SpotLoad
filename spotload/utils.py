@@ -1,3 +1,7 @@
+import argparse
+import os
+import re
+
 import requests
 
 
@@ -34,7 +38,7 @@ def choose_items(title: str, items: list, prefix: str = None, callback: callable
         try:
             print("<<: ", end="")
             if auto_select or len(items) == 1:
-                print("1")
+                print("1 (auto-select)")
                 return None, 0
             _index = input()
             if prefix and _index.startswith(prefix):
@@ -46,3 +50,38 @@ def choose_items(title: str, items: list, prefix: str = None, callback: callable
             continue
         except ValueError:
             pass
+
+
+def valid_directory(pathname: str):
+    if not os.path.exists(pathname):
+        os.makedirs(pathname)
+
+    if not os.access(pathname, os.R_OK):
+        raise argparse.ArgumentTypeError(f"{pathname} is not accessible.")
+
+    if not os.path.isdir(pathname):
+        raise argparse.ArgumentTypeError(f"{pathname} is not a valid directory.")
+
+    pathname = pathname.strip()
+    return pathname
+
+def set_default_directory(pathname):
+    from spotload import DEFAULT_DIR_FILEPATH
+
+    pathname = valid_directory(pathname)
+
+    print(f"default directory changed to {pathname}")
+    with open(DEFAULT_DIR_FILEPATH, "w") as f:
+        f.write(pathname)
+
+    exit()
+
+
+def extract_video_id(youtube_url):
+    # Regular expression to match YouTube video ID
+    pattern = r'(?:https?://)?(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)([a-zA-Z0-9_-]{11})'
+    match = re.match(pattern, youtube_url)
+    if match:
+        return match.group(1)
+    else:
+        return None

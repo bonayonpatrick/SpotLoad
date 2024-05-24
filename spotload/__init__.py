@@ -11,3 +11,11 @@ spotify = Spotify(auth_manager=SpotifyClientCredentials(
 ))
 
 from .spotload import Spotload
+from pathlib import Path
+
+DEFAULT_DIR_FILEPATH = f"{Path.home()}/spotload_dir"
+DEFAULT_DIR_PATH = None
+
+if os.path.exists(DEFAULT_DIR_FILEPATH):
+    with open(DEFAULT_DIR_FILEPATH) as f:
+        DEFAULT_DIR_PATH = f.read()
