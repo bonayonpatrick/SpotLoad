@@ -12,6 +12,7 @@ def run():
     parser.add_argument('--format', choices=['mp3', 'opus'], default='opus')
     parser.add_argument('--default-dir', type=set_default_directory)
     parser.add_argument('--directory', type=valid_directory, default=DEFAULT_DIR_PATH)
+    parser.add_argument('--delta', type=int, default=10)
     parser.add_argument("--auto", action="store_true")
     parser.add_argument('queries', nargs="*")
     args = parser.parse_args()
@@ -27,7 +28,7 @@ def run():
             metadata = choose_from_youtube_music(query, auto=args.auto, use_yt=args.mode == 'yt')
             spotload.download_video(spotload.directory, f'https://youtu.be/{metadata["id"]}')
         else:
-            result = search_query(query, auto=args.auto, use_yt=args.mode == 'spot-yt')
+            result = search_query(query, auto=args.auto, use_yt=args.mode == 'spot-yt', delta=args.delta)
             track_id, video_id, metadata = result
             spotload.download(video_id=video_id, metadata=metadata, audio_type=args.format)
 

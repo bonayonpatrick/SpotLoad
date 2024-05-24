@@ -61,7 +61,7 @@ def choose_from_spotify(query, auto=False):
     return metadata
 
 
-def choose_from_youtube_music(query: str, duration=0, delta=3, auto=False, use_yt=False):
+def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_yt=False):
     ytmusic = YTMusic()
 
     if "https://" in query:
@@ -99,7 +99,7 @@ def choose_from_youtube_music(query: str, duration=0, delta=3, auto=False, use_y
     }
 
 
-def search_query(query, auto=False, use_yt=False):
+def search_query(query, auto=False, use_yt=False, delta=10):
     if (track := choose_from_spotify(query, auto=auto)) is None:
         return
 
@@ -108,6 +108,7 @@ def search_query(query, auto=False, use_yt=False):
     if (video := choose_from_youtube_music(
         query=query,
         duration=track["duration"],
+        delta=delta,
         auto=auto,
         use_yt=use_yt
     )) is None:
