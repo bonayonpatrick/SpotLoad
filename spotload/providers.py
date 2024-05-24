@@ -106,7 +106,7 @@ def search_query(query, auto=False, use_yt=False, delta=10):
     metadata = track["metadata"]
 
     if (video := choose_from_youtube_music(
-        query=query,
+        query=f"{concat_comma(metadata['artist'])} - {metadata['title']}",
         duration=track["duration"],
         delta=delta,
         auto=auto,
