@@ -1,8 +1,62 @@
 import argparse
 import os
 import re
+import shutil
 
+import ffmpeg
 import requests
+
+
+def download_video(directory, urls):
+    if isinstance(urls, str):
+        urls = [urls]
+
+    return os.system(" ".join([
+        f'yt-dlp',
+        f'-f "bestaudio[ext=webm]"',
+        f'-o "{directory}/%(title)s.opus"',
+        f'--external-downloader aria2c' if shutil.which("aria2c") else "",
+        f'--fragment-retries 999',
+        f'--abort-on-unavailable-fragment',
+        " ".join([f'"{url}"' for url in urls])
+    ]))
+
+
+def reformat_opus(file_path):
+    print(f"optimizing opus metadata...")
+
+    dirpath, filename = os.path.dirname(file_path), os.path.basename(file_path)
+
+    tmp_dir = f"{dirpath}/tmp"
+    tmp_file = os.path.join(tmp_dir, filename)
+
+    if not os.path.exists(tmp_dir):
+        os.makedirs(tmp_dir)
+
+    probe = ffmpeg.probe(file_path)
+    format_type = probe["format"]
+    streams = probe["streams"]
+
+    if (codec := streams[0]["codec_name"]) != "opus":
+        print(f"type {codec} not supported.")
+        return
+
+    if not format_type:
+        print("invalid format type.")
+        return
+
+    if not (tags := format_type.get("tags")):
+        tags = streams[0]["tags"]
+
+    if not tags or tags["encoder"] not in ["google/video-file", "google"]:
+        print(f"{filename} is already optimized: {tags}")
+        return
+
+    # print("encoding...")
+    os.system(f'ffmpeg -hide_banner -loglevel error -y -i "{file_path}" -acodec copy "{tmp_file}"')
+
+    shutil.copyfile(tmp_file, file_path)
+    shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
 def retry_on_fail(call, *args, **kwargs):
@@ -64,6 +118,7 @@ def valid_directory(pathname: str):
 
     pathname = pathname.strip()
     return pathname
+
 
 def set_default_directory(pathname):
     from spotload import DEFAULT_DIR_FILEPATH

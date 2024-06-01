@@ -3,51 +3,13 @@ import os
 import shutil
 from datetime import datetime
 
-import ffmpeg
 import mutagen
 from pathvalidate import sanitize_filename
 
-from .utils import concat_comma
+from .utils import concat_comma, reformat_opus, download_video
 
 
-def reformat_opus(file_path):
-    print(f"optimizing opus metadata...")
-
-    dirpath, filename = os.path.dirname(file_path), os.path.basename(file_path)
-
-    tmp_dir = f"{dirpath}/tmp"
-    tmp_file = os.path.join(tmp_dir, filename)
-
-    if not os.path.exists(tmp_dir):
-        os.makedirs(tmp_dir)
-
-    probe = ffmpeg.probe(file_path)
-    format_type = probe["format"]
-    streams = probe["streams"]
-
-    if (codec := streams[0]["codec_name"]) != "opus":
-        print(f"type {codec} not supported.")
-        return
-
-    if not format_type:
-        print("invalid format type.")
-        return
-
-    if not (tags := format_type.get("tags")):
-        tags = streams[0]["tags"]
-
-    if not tags or tags["encoder"] not in ["google/video-file", "google"]:
-        print(f"{filename} is already optimized: {tags}")
-        return
-
-    # print("encoding...")
-    os.system(f'ffmpeg -hide_banner -loglevel error -y -i "{file_path}" -acodec copy "{tmp_file}"')
-
-    shutil.copyfile(tmp_file, file_path)
-    shutil.rmtree(tmp_dir, ignore_errors=True)
-
-
-class Spotload:
+class SpotLoad:
     def __init__(self, directory=os.getcwd()):
         self.directory = directory
 
@@ -106,46 +68,32 @@ class Spotload:
             }
         }
 
-    def download_video(self, directory, urls):
-        if isinstance(urls, str):
-            urls = [urls]
-
-        return os.system(" ".join([
-            f'yt-dlp',
-            f'-f "bestaudio[ext=webm]"',
-            f'-o "{directory}/%(title)s.opus"',
-            f'--external-downloader aria2c' if shutil.which("aria2c") else "",
-            f'--fragment-retries 999',
-            f'--abort-on-unavailable-fragment',
-            " ".join([f'"{url}"' for url in urls])
-        ]))
-
     def download(self, video_id, metadata, audio_type="opus"):
         tmp_dir = f"{self.directory}/tmp_{int(datetime.now().timestamp())}"
-        self.download_video(tmp_dir, f"https://youtu.be/{video_id}")
-        print("downloading resources.", end="")
+        download_video(tmp_dir, f"https://youtu.be/{video_id}")
+
         if album_art := metadata["album_art"]:
-            print(".", end="")
+            print("Downloading Album Cover...")
             metadata["album_art"] = album_art()
         if genre := metadata["genre"]:
-            print(".", end="")
+            print("Downloading Genre Metadata...", end="")
             metadata["genre"] = genre()
-        print()
+
         filename = os.listdir(tmp_dir)[0]
         audio_path_tmp, audio_path = f"{tmp_dir}/{filename}", f"{self.directory}/{filename}"
 
         if audio_type == "mp3":
             name, ext = os.path.splitext(filename)
             music_mp3_dir = f"{self.directory}/{name}.mp3"
-            print(f"converting to mp3...")
+            print(f"Converting file to MP3...")
             os.system(f'ffmpeg -hide_banner -loglevel error -y -i "{audio_path_tmp}" '
                       f'-acodec libmp3lame -q:a 0 "{music_mp3_dir}"')
             os.remove(f"{audio_path_tmp}")
-            print(f"inserting metadata...")
+            print(f"Binding Metadata to MP3...")
             self.bind_mp3(music_mp3_dir, metadata)
         elif audio_type == "opus":
             shutil.move(audio_path_tmp, audio_path)
-            print(f"inserting metadata...")
+            print(f"Binding Metadata to OPUS...")
             self.bind_opus(audio_path, metadata)
 
         os.rmdir(tmp_dir)

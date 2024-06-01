@@ -1,7 +1,15 @@
 import os.path
 import tempfile
+from pathlib import Path
 
 from spotipy import Spotify, SpotifyClientCredentials, CacheFileHandler
+
+DEFAULT_DIR_FILEPATH = f"{Path.home()}/spotload_dir"
+DEFAULT_DIR_PATH = None
+
+if os.path.exists(DEFAULT_DIR_FILEPATH):
+    with open(DEFAULT_DIR_FILEPATH) as f:
+        DEFAULT_DIR_PATH = f.read()
 
 # using spotdl token
 spotify = Spotify(auth_manager=SpotifyClientCredentials(
@@ -10,12 +18,4 @@ spotify = Spotify(auth_manager=SpotifyClientCredentials(
     client_secret="212476d9b0f3472eaa762d90b19b0ba8"
 ))
 
-from .spotload import Spotload
-from pathlib import Path
-
-DEFAULT_DIR_FILEPATH = f"{Path.home()}/spotload_dir"
-DEFAULT_DIR_PATH = None
-
-if os.path.exists(DEFAULT_DIR_FILEPATH):
-    with open(DEFAULT_DIR_FILEPATH) as f:
-        DEFAULT_DIR_PATH = f.read()
+from .spotload import SpotLoad

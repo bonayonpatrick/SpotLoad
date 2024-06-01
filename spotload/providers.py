@@ -23,7 +23,7 @@ def choose_from_spotify(query, auto=False):
 
     track: dict
     track, index = choose_items(
-        title=f"Choose Metadata",
+        title=f"Choose Metadata from Spotify:",
         items=list(_items.keys()),
         prefix="id#",
         callback=_prefix_action,
@@ -62,14 +62,14 @@ def choose_from_spotify(query, auto=False):
 
 
 def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_yt=False):
-    ytmusic = YTMusic()
+    ytm = YTMusic()
 
-    if "https://" in query:
-        results = [ytmusic.get_song(extract_video_id(query))]
+    if query.startswith("https://"):
+        results = [ytm.get_song(extract_video_id(query))]
     elif query.startswith("id#"):
-        results = [ytmusic.get_song(query.removeprefix("id#"))]
+        results = [ytm.get_song(query.removeprefix("id#"))]
     else:
-        results = ytmusic.search(query)
+        results = ytm.search(query)
 
     _items = {}
     for result in results:
@@ -79,9 +79,14 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
             if not use_yt and (abs(result['duration_seconds'] - duration) < delta) or duration == 0:
                 _items[f"{artist} - {result['title']}"] = result
 
+    def _prefix_action(track_id):
+        if result := spotify.track(track_id=track_id):
+            return result
+        print("invalid track id")
+
     video: dict
     video, index = choose_items(
-        title=f"Choose Audio from YouTube Music",
+        title=f"Choose Audio from YouTube Music:",
         items=list(_items.keys()),
         auto_select=auto
     )
@@ -94,7 +99,7 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
         "metadata": {
             "title": video["title"],
             "artist": [artist["name"] for artist in video["artists"]],
-            "album": video["album"]["name"]
+            "album": album["name"] if (album := video.get("album")) else "Unknown Album"
         }
     }
 

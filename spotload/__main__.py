@@ -1,9 +1,9 @@
 import argparse
 import sys
 
-from spotload import DEFAULT_DIR_PATH, Spotload
+from spotload import DEFAULT_DIR_PATH, SpotLoad
 from spotload.providers import choose_from_youtube_music, search_query
-from spotload.utils import valid_directory, set_default_directory
+from spotload.utils import valid_directory, set_default_directory, download_video
 
 
 def run():
@@ -15,18 +15,19 @@ def run():
     parser.add_argument('--delta', type=int, default=10)
     parser.add_argument("--auto", action="store_true")
     parser.add_argument('queries', nargs="*")
+
     args = parser.parse_args()
 
     if len(sys.argv) == 1:
         parser.print_help()
         exit()
 
-    spotload = Spotload(args.directory or args.default_dir)
+    spotload = SpotLoad(args.directory or args.default_dir)
 
     for query in filter(lambda x: bool(x.strip()), args.queries):
         if args.mode in ['ytm', 'yt']:
             metadata = choose_from_youtube_music(query, auto=args.auto, use_yt=args.mode == 'yt')
-            spotload.download_video(spotload.directory, f'https://youtu.be/{metadata["id"]}')
+            download_video(spotload.directory, f'https://youtu.be/{metadata["id"]}')
         else:
             result = search_query(query, auto=args.auto, use_yt=args.mode == 'spot-yt', delta=args.delta)
             track_id, video_id, metadata = result
@@ -35,3 +36,6 @@ def run():
 
 if __name__ == '__main__':
     run()
+
+
+# TODO: add prefix input inside of item selection interpretation

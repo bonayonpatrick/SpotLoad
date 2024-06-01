@@ -11,11 +11,14 @@ setuptools.setup(
     },
     python_requires=">=3.8",
     install_requires=[
-        "requests",
-        "ffmpeg-python==0.2.0",
-        "spotipy==2.22.0",
-        "mutagen==1.46.0",
-        "pathvalidate==2.5.2",
-        "youtube-search-python==1.6.6"
+        'yt-dlp',
+        'setuptools',
+        'requests',
+        'ffmpeg-python==0.2.0',
+        'spotipy==2.22.1',
+        'mutagen==1.46.0',
+        'pathvalidate==2.5.2',
+        'pathlib==1.0.1',
+        'ytmusicapi==1.7.2'
     ],
 )
