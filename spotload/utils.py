@@ -132,11 +132,38 @@ def set_default_directory(pathname):
     exit()
 
 
-def extract_video_id(youtube_url):
-    # Regular expression to match YouTube video ID
-    pattern = r'(?:https?://)?(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)([a-zA-Z0-9_-]{11})'
-    match = re.match(pattern, youtube_url)
-    if match:
-        return match.group(1)
-    else:
-        return None
+# def extract_video_id(youtube_url):
+#     # Regular expression to match YouTube video ID
+#     pattern = r'(?:https?://)?(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)([a-zA-Z0-9_-]{11})'
+#     match = re.match(pattern, youtube_url)
+#     if match:
+#         return match.group(1)
+#     else:
+#         return None
+
+
+def extract_video_id(url):
+    """
+    Extract the video ID from a YouTube or YouTube Music URL.
+
+    Parameters:
+    url (str): The YouTube or YouTube Music URL.
+
+    Returns:
+    str: The video ID.
+    """
+
+    # Define regex patterns for different YouTube URL formats
+    patterns = [
+        r'(?:https?://)?(?:www\.)?youtube\.com/watch\?v=([^&]+)',  # Standard YouTube URL
+        r'(?:https?://)?youtu\.be/([^?&]+)',  # Shortened YouTube URL
+        r'(?:https?://)?(?:www\.)?youtube\.com/embed/([^?&]+)',  # Embedded YouTube URL
+        r'(?:https?://)?(?:music\.)?youtube\.com/watch\?v=([^&]+)'  # YouTube Music URL
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, url)
+        if match:
+            return match.group(1)
+
+    return None
