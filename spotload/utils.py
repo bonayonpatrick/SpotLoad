@@ -23,7 +23,7 @@ def download_video(directory, urls):
 
 
 def reformat_opus(file_path):
-    print(f"optimizing opus metadata...")
+    print(f"Re-encoding OPUS File...")
 
     dirpath, filename = os.path.dirname(file_path), os.path.basename(file_path)
 
