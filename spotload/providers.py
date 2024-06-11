@@ -66,7 +66,8 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
 
     if query.startswith("https://"):
         results = ytm.search(extract_video_id(query))
-        use_yt = "music.youtube.com" not in query
+        if len(results) > 0:
+            results = results[:1]
     else:
         results = ytm.search(query)
 
@@ -75,7 +76,7 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
         if result['resultType'] == ('video' if use_yt else 'song'):
             artist = concat_comma([artist['name'] for artist in result['artists']])
             # calculate delta to match the closest result
-            if (abs(result['duration_seconds'] - duration) < delta) or duration == 0:
+            if duration == 0 or (abs(result['duration_seconds'] - duration) < delta):
                 _items[f"{artist} - {result['title']}"] = result
 
     def _prefix_action(track_id):

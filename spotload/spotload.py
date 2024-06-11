@@ -76,7 +76,7 @@ class SpotLoad:
             print("Downloading Album Cover...")
             metadata["album_art"] = album_art()
         if genre := metadata["genre"]:
-            print("Downloading Genre Metadata...", end="")
+            print("Downloading Genre Metadata...")
             metadata["genre"] = genre()
 
         filename = os.listdir(tmp_dir)[0]

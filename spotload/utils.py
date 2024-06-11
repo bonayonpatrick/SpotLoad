@@ -1,7 +1,7 @@
 import argparse
 import os
-import re
 import shutil
+from urllib.parse import urlparse, parse_qs
 
 import ffmpeg
 import requests
@@ -132,38 +132,15 @@ def set_default_directory(pathname):
     exit()
 
 
-# def extract_video_id(youtube_url):
-#     # Regular expression to match YouTube video ID
-#     pattern = r'(?:https?://)?(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)([a-zA-Z0-9_-]{11})'
-#     match = re.match(pattern, youtube_url)
-#     if match:
-#         return match.group(1)
-#     else:
-#         return None
-
 
 def extract_video_id(url):
-    """
-    Extract the video ID from a YouTube or YouTube Music URL.
+    parsed_url = urlparse(url)
 
-    Parameters:
-    url (str): The YouTube or YouTube Music URL.
+    video_id = None
+    if parsed_url.netloc == "youtu.be":
+        video_id = parsed_url.path.replace("/", "")
+    elif parsed_url.netloc in ["music.youtube.com", "youtube.com", "m.youtube.com", "www.youtube.com"]:
+        video_id = parse_qs(parsed_url.query).get("v", [None])[0]
 
-    Returns:
-    str: The video ID.
-    """
+    return video_id
 
-    # Define regex patterns for different YouTube URL formats
-    patterns = [
-        r'(?:https?://)?(?:www\.)?youtube\.com/watch\?v=([^&]+)',  # Standard YouTube URL
-        r'(?:https?://)?youtu\.be/([^?&]+)',  # Shortened YouTube URL
-        r'(?:https?://)?(?:www\.)?youtube\.com/embed/([^?&]+)',  # Embedded YouTube URL
-        r'(?:https?://)?(?:music\.)?youtube\.com/watch\?v=([^&]+)'  # YouTube Music URL
-    ]
-
-    for pattern in patterns:
-        match = re.search(pattern, url)
-        if match:
-            return match.group(1)
-
-    return None

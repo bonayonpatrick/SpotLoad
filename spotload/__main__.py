@@ -1,6 +1,8 @@
 import argparse
 import sys
 
+import requests.exceptions
+
 from spotload import DEFAULT_DIR_PATH, SpotLoad
 from spotload.providers import choose_from_youtube_music, search_query
 from spotload.utils import valid_directory, set_default_directory, download_video
@@ -39,6 +41,8 @@ if __name__ == '__main__':
         run()
     except KeyboardInterrupt:
         pass
+    except requests.exceptions.ConnectionError:
+        print("Unreachable network.")
 
 
 # TODO: add prefix input inside of item selection interpretation
