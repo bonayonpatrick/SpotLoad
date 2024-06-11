@@ -74,6 +74,8 @@ def retry_on_fail(call, *args, **kwargs):
 
 
 def concat_comma(items):
+    items = items[:]
+
     if not items:
         return
 
