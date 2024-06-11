@@ -109,7 +109,7 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
             "title": video["title"],
             "artist": [artist["name"] for artist in video["artists"]],
             "album": album["name"] if (album := video.get("album")) else "Unknown Album",
-            "lyrics": get_lyrics,
+            "lyrics": get_lyrics if not use_yt else None,
             "comment": f"https://www.youtube.com/watch?v={video_id}"
         }
     }
@@ -130,10 +130,7 @@ def search_query(query, auto=False, use_yt=False, delta=10):
     )) is None:
         return
 
-    if not use_yt:
-        metadata["title"] = video["metadata"]["title"]
-        metadata["artist"] = video["metadata"]["artist"]
-
+    metadata.update(video["metadata"])
     video_id = video["id"]
 
     return track["id"], video_id, metadata
