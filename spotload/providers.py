@@ -110,7 +110,7 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
             "artist": [artist["name"] for artist in video["artists"]],
             "album": album["name"] if (album := video.get("album")) else "Unknown Album",
             "lyrics": get_lyrics if not use_yt else None,
-            "comment": f"https://www.youtube.com/watch?v={video_id}"
+            "comment": f"https://www.youtube.com/watch?v={video['videoId']}"
         }
     }
 
