@@ -130,6 +130,10 @@ def search_query(query, auto=False, use_yt=False, delta=10):
     )) is None:
         return
 
+    # it is not recommended
+    del video["metadata"]["title"]
+    del video["metadata"]["artist"]
+
     metadata.update(video["metadata"])
     video_id = video["id"]
 
