@@ -98,10 +98,9 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
     video = video or list(_items.values())[index]
 
     def get_lyrics():
-        if video_id:
-            watch_playlist = ytm.get_watch_playlist(video_id)
-            if lyrics_id := watch_playlist.get("lyrics"):
-                return ytm.get_lyrics(lyrics_id)["lyrics"]
+        watch_playlist = ytm.get_watch_playlist(video["videoId"])
+        if lyrics_id := watch_playlist.get("lyrics"):
+            return ytm.get_lyrics(lyrics_id)["lyrics"]
 
     return {
         "id": video["videoId"],
