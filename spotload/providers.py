@@ -63,11 +63,11 @@ def choose_from_spotify(query, auto=False):
 
 def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_yt=False):
     ytm = YTMusic()
+    video_id = None
 
     if query.startswith("https://"):
-        results = ytm.search(extract_video_id(query))
-        if len(results) > 0:
-            results = results[:1]
+        video_id = extract_video_id(query)
+        results = ytm.search(video_id)
     else:
         results = ytm.search(query)
 
@@ -75,6 +75,10 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
     for result in results:
         if result['resultType'] == ('video' if use_yt else 'song'):
             artist = concat_comma([artist['name'] for artist in result['artists']])
+
+            if video_id and result["videoId"] != video_id:
+                continue
+
             # calculate delta to match the closest result
             if duration == 0 or (abs(result['duration_seconds'] - duration) < delta):
                 _items[f"{artist} - {result['title']}"] = result
@@ -93,13 +97,21 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
 
     video = video or list(_items.values())[index]
 
+    def get_lyrics():
+        if video_id:
+            watch_playlist = ytm.get_watch_playlist(video_id)
+            if lyrics_id := watch_playlist.get("lyrics"):
+                return ytm.get_lyrics(lyrics_id)["lyrics"]
+
     return {
         "id": video["videoId"],
         "duration": video["duration_seconds"],
         "metadata": {
             "title": video["title"],
             "artist": [artist["name"] for artist in video["artists"]],
-            "album": album["name"] if (album := video.get("album")) else "Unknown Album"
+            "album": album["name"] if (album := video.get("album")) else "Unknown Album",
+            "lyrics": get_lyrics,
+            "comment": f"https://www.youtube.com/watch?v={video_id}"
         }
     }
 

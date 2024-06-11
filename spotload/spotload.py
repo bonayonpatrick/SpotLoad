@@ -72,12 +72,15 @@ class SpotLoad:
         tmp_dir = f"{self.directory}/tmp_{int(datetime.now().timestamp())}"
         download_video(tmp_dir, f"https://youtu.be/{video_id}")
 
-        if album_art := metadata["album_art"]:
+        if album_art := metadata.get("album_art"):
             print("Downloading Album Cover...")
             metadata["album_art"] = album_art()
-        if genre := metadata["genre"]:
+        if genre := metadata.get("genre"):
             print("Downloading Genre Metadata...")
             metadata["genre"] = genre()
+        if lyrics := metadata.get("lyrics"):
+            print("Downloading Lyrics Metadata...")
+            metadata["lyrics"] = lyrics()
 
         filename = os.listdir(tmp_dir)[0]
         audio_path_tmp, audio_path = f"{tmp_dir}/{filename}", f"{self.directory}/{filename}"
@@ -119,7 +122,8 @@ class SpotLoad:
                 audio_file["USLT::'eng'"] = id3.USLT(encoding=3, lang=u"eng", desc=u"desc", text=val)
             else:
                 # print(f"Converting {key} to {id3_tags[key]}")
-                audio_file[id3_tags[key]] = getattr(id3, id3_tags[key])(encoding=3, text=val)
+                if tag := id3_tags.get(key):
+                    audio_file[tag] = getattr(id3, id3_tags[key])(encoding=3, text=val)
 
         audio_file.save(v2_version=3)
         new_name = f"{concat_comma(tags['artist'])} - {tags['title']}.mp3"
@@ -151,7 +155,8 @@ class SpotLoad:
                 # print(f"binding cover art...")
             else:
                 # print(f"binding opus tag: {key}")
-                audio[opus_tags[key]] = val
+                if tag := opus_tags.get(key):
+                    audio[tag] = val
 
         audio.save()
         new_name = f"{concat_comma(tags['artist'])} - {tags['title']}.opus"
