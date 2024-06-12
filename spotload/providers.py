@@ -136,7 +136,7 @@ def search_query(query, auto=False, use_yt=False, delta=10):
     del video["metadata"]["title"]
     del video["metadata"]["artist"]
 
-    if "album_art" in metadata["metadata"]:
+    if "album_art" in video["metadata"]:
         del video["metadata"]["album_art"]
 
     # update comments to include spotify id
