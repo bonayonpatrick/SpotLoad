@@ -112,7 +112,7 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
     if not use_yt:
         metadata["metadata"]["album_art"] = lambda: retry_on_fail(
             lambda: requests.get(
-                video["thumbnails"][0]["url"].replace("=w640-h60", "=w640-h640")
+                video["thumbnails"][0]["url"].replace("=w60-h60", "=w640-h640")
             ).content
         )
 
