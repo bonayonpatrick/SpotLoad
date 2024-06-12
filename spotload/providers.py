@@ -112,7 +112,7 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
     }
 
     if not use_yt:
-        metadata["metadata"]["album_art"] = lambda: retry_on_fail(lambda: requests.get(thumbnail_url).content),
+        metadata["metadata"]["album_art"] = lambda: retry_on_fail(lambda: requests.get(thumbnail_url).content)
 
     return metadata
 
