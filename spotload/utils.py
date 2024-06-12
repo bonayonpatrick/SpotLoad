@@ -8,14 +8,14 @@ import ffmpeg
 import requests
 
 
-def download_video(directory, urls):
+def download_video(filepath, urls):
     if isinstance(urls, str):
         urls = [urls]
 
     return os.system(" ".join([
         f'yt-dlp',
         f'-f "bestaudio[ext=webm]"',
-        f'-o "{directory}/%(title)s.opus"',
+        f'-o "{filepath}"',
         f'--external-downloader aria2c' if shutil.which("aria2c") else "",
         f'--fragment-retries 999',
         f'--abort-on-unavailable-fragment',

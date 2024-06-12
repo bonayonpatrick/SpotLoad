@@ -1,6 +1,7 @@
 import base64
 import os
 import shutil
+import tempfile
 from datetime import datetime
 
 import mutagen
@@ -69,8 +70,21 @@ class SpotLoad:
         }
 
     def download(self, video_id, metadata, audio_type="opus"):
-        tmp_dir = f"{self.directory}/tmp_{int(datetime.now().timestamp())}"
-        download_video(tmp_dir, f"https://youtu.be/{video_id}")
+        filepath = f"{self.directory}/{concat_comma(metadata['artist'])} - {metadata['title']}.{audio_type}"
+
+        if not os.path.exists(filepath):
+            download_tmp = f"{tempfile.gettempdir()}/spotload.{int(datetime.now().timestamp())}.webm"
+            download_video(download_tmp, f"https://youtu.be/{video_id}")
+
+            if audio_type == "mp3":
+                print(f"Converting file to MP3...")
+                os.system(f'ffmpeg -hide_banner -loglevel error -y -i "{download_tmp}" '
+                          f'-acodec libmp3lame -q:a 0 "{filepath}"')
+                os.remove(f"{download_tmp}")
+            elif audio_type == "opus":
+                shutil.move(download_tmp, filepath)
+        else:
+            print("File already exists.")
 
         if album_art := metadata.get("album_art"):
             print("Downloading Album Cover...")
@@ -85,24 +99,12 @@ class SpotLoad:
         if metadata["lyrics"] is None:
             del metadata["lyrics"]
 
-        filename = os.listdir(tmp_dir)[0]
-        audio_path_tmp, audio_path = f"{tmp_dir}/{filename}", f"{self.directory}/{filename}"
-
         if audio_type == "mp3":
-            name, ext = os.path.splitext(filename)
-            music_mp3_dir = f"{self.directory}/{name}.mp3"
-            print(f"Converting file to MP3...")
-            os.system(f'ffmpeg -hide_banner -loglevel error -y -i "{audio_path_tmp}" '
-                      f'-acodec libmp3lame -q:a 0 "{music_mp3_dir}"')
-            os.remove(f"{audio_path_tmp}")
             print(f"Binding Metadata to MP3...")
-            self.bind_mp3(music_mp3_dir, metadata)
+            self.bind_mp3(filepath, metadata)
         elif audio_type == "opus":
-            shutil.move(audio_path_tmp, audio_path)
             print(f"Binding Metadata to OPUS...")
-            self.bind_opus(audio_path, metadata)
-
-        os.rmdir(tmp_dir)
+            self.bind_opus(filepath, metadata)
 
     def bind_mp3(self, file_path, tags):
         from mutagen import easyid3
@@ -114,24 +116,18 @@ class SpotLoad:
         id3_tags = {key: val["id3"] for key, val in self.tag_presets.items()}
 
         for key, val in tags.items():
-            # print(f"Binding {key} with value: {val[:20]}")
-
             if key == "album_art":
-                # print("Binding APIC Cover")
                 audio_file["APIC"] = id3.APIC(encoding=3, mime="image/jpeg", type=3, desc="Cover", data=val)
             elif key == "lyrics":
                 audio_file.add(id3.COMM(encoding=3, text=val))
             elif key == "comment":
                 audio_file["USLT::'eng'"] = id3.USLT(encoding=3, lang=u"eng", desc=u"desc", text=val)
             else:
-                # print(f"Converting {key} to {id3_tags[key]}")
-                if tag := id3_tags.get(key):
-                    audio_file[tag] = getattr(id3, id3_tags[key])(encoding=3, text=val)
+                audio_file[id3_tags[key]] = getattr(id3, id3_tags[key])(encoding=3, text=val)
 
         audio_file.save(v2_version=3)
-        new_name = f"{concat_comma(tags['artist'])} - {tags['title']}.mp3"
-        # print(f"renaming to {new_name}")
-        shutil.move(file_path, f"{os.path.dirname(file_path)}/{sanitize_filename(new_name)}")
+        # new_name = f"{concat_comma(tags['artist'])} - {tags['title']}.mp3"
+        # shutil.move(file_path, f"{os.path.dirname(file_path)}/{sanitize_filename(new_name)}")
 
     def bind_opus(self, file_path, tags):
         from mutagen.oggopus import OggOpus
@@ -155,13 +151,9 @@ class SpotLoad:
                 image.data = val
 
                 audio[opus_tags[key]] = base64.b64encode(image.write()).decode("ascii")
-                # print(f"binding cover art...")
             else:
-                # print(f"binding opus tag: {key}")
-                if tag := opus_tags.get(key):
-                    audio[tag] = val
+                audio[opus_tags[key]] = val
 
         audio.save()
-        new_name = f"{concat_comma(tags['artist'])} - {tags['title']}.opus"
-        # print(f"renaming to {new_name}")
-        shutil.move(file_path, f"{os.path.dirname(file_path)}/{sanitize_filename(new_name)}")
+        # new_name = f"{concat_comma(tags['artist'])} - {tags['title']}.opus"
+        # shutil.move(file_path, f"{os.path.dirname(file_path)}/{sanitize_filename(new_name)}")

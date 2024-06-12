@@ -146,7 +146,4 @@ def search_query(query, auto=False, use_yt=False, delta=10, use_spotify_album_ar
 
     metadata.update(video["metadata"])
 
-    # clean up
-    print(metadata)
-
     return track["id"], video["id"], metadata
