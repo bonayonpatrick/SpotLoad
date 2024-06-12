@@ -2,7 +2,7 @@ import requests
 from ytmusicapi import YTMusic
 
 from . import spotify
-from .utils import retry_on_fail, concat_comma, choose_items, extract_video_id
+from .utils import retry_on_fail, concat_comma, choose_items, extract_video_id, remove_extra_parentheses
 
 
 def choose_from_spotify(query, auto=False):
@@ -39,9 +39,9 @@ def choose_from_spotify(query, auto=False):
     }
 
     audio_metadata = {
-        "album": track["album"]["name"],
-        "title": track["name"],
-        "artist": [artist["name"] for artist in track["artists"]],
+        "album": remove_extra_parentheses(track["album"]["name"]),
+        "title": remove_extra_parentheses(track["name"]),
+        "artist": [remove_extra_parentheses(artist["name"]) for artist in track["artists"]],
         "track_number": str(track["track_number"]),
         "disc_number": str(track["disc_number"]),
         "album_art": lambda: retry_on_fail(lambda: requests.get(track["album"]["images"][0]["url"]).content),
@@ -101,9 +101,9 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
         "id": video["videoId"],
         "duration": video["duration_seconds"],
         "metadata": {
-            "title": video["title"],
-            "artist": [artist["name"] for artist in video["artists"]],
-            "album": album["name"] if (album := video.get("album")) else "Unknown Album",
+            "title": remove_extra_parentheses(video["title"]),
+            "artist": [remove_extra_parentheses(artist["name"]) for artist in video["artists"]],
+            "album": remove_extra_parentheses(album["name"]) if (album := video.get("album")) else "Unknown Album",
             "lyrics": get_lyrics if not use_yt else None,
             "comment": video['videoId']
         }
@@ -145,5 +145,8 @@ def search_query(query, auto=False, use_yt=False, delta=10, use_spotify_album_ar
     video["metadata"]["comment"] = f"{track['id']};{video['metadata']['comment']}"
 
     metadata.update(video["metadata"])
+
+    # clean up
+    print(metadata)
 
     return track["id"], video["id"], metadata

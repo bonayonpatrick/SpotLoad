@@ -1,5 +1,6 @@
 import argparse
 import os
+import re
 import shutil
 from urllib.parse import urlparse, parse_qs
 
@@ -134,7 +135,6 @@ def set_default_directory(pathname):
     exit()
 
 
-
 def extract_video_id(url):
     parsed_url = urlparse(url)
 
@@ -145,4 +145,10 @@ def extract_video_id(url):
         video_id = parse_qs(parsed_url.query).get("v", [None])[0]
 
     return video_id
+
+
+def remove_extra_parentheses(text):
+    # Define the regex pattern to match redundant parenthesis with more robust conditions
+    pattern = re.compile(r'(.+?)\s\(\1\)')
+    return pattern.sub(r'\1', text)
 
