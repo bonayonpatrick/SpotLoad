@@ -9,7 +9,14 @@ from spotload.utils import valid_directory, set_default_directory, download_vide
 
 
 def run():
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
+    except requests.exceptions.ConnectionError:
+        print("Unreachable network.")
+    except KeyError as e:
+        print(e)
 
 def main():
     parser = argparse.ArgumentParser(prog='spotload')
@@ -40,12 +47,7 @@ def main():
 
 
 if __name__ == '__main__':
-    try:
-        run()
-    except KeyboardInterrupt:
-        pass
-    except requests.exceptions.ConnectionError:
-        print("Unreachable network.")
+    run()
 
 
 # TODO: add prefix input inside of item selection interpretation
