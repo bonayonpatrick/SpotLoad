@@ -26,7 +26,7 @@ def main():
     parser.add_argument('--directory', type=valid_directory, default=DEFAULT_DIR_PATH)
 
     parser.add_argument('--delta', type=int, default=10)
-    parser.add_argument('--use-spotify-album-art', action="store_true")
+    parser.add_argument('--use-spotify-album', action="store_true")
     parser.add_argument("--auto", action="store_true")
     parser.add_argument('queries', nargs="*")
 
@@ -43,7 +43,13 @@ def main():
             video_data = choose_from_youtube_music(query, auto=args.auto, use_yt=args.mode == 'yt')
             video_id, metadata = video_data["id"], video_data["metadata"]
         else:
-            result = search_query(query, auto=args.auto, use_yt=args.mode == 'spot-yt', delta=args.delta)
+            result = search_query(
+                query=query,
+                auto=args.auto,
+                use_yt=args.mode == 'spot-yt',
+                delta=args.delta,
+                use_spotify_album=args.use_spotify_album
+            )
             track_id, video_id, metadata = result
         spotload.download(video_id, metadata, args.format)
 
