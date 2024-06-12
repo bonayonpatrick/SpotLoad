@@ -9,6 +9,9 @@ from spotload.utils import valid_directory, set_default_directory, download_vide
 
 
 def run():
+    main()
+
+def main():
     parser = argparse.ArgumentParser(prog='spotload')
     parser.add_argument('--mode', choices=['spot-ytm', 'spot-yt', 'ytm', 'yt'], default='spot-ytm')
     parser.add_argument('--format', choices=['mp3', 'opus'], default='opus')
