@@ -119,7 +119,7 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
     return metadata
 
 
-def search_query(query, auto=False, use_yt=False, delta=10):
+def search_query(query, auto=False, use_yt=False, delta=10, use_spotify_album_art=False):
     if (track := choose_from_spotify(query, auto=auto)) is None:
         return
 
@@ -138,7 +138,7 @@ def search_query(query, auto=False, use_yt=False, delta=10):
     del video["metadata"]["title"]
     del video["metadata"]["artist"]
 
-    if "album_art" in video["metadata"]:
+    if use_spotify_album_art and "album_art" in video["metadata"]:
         del video["metadata"]["album_art"]
 
     # update comments to include spotify id
