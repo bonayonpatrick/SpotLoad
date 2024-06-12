@@ -97,8 +97,6 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
         if lyrics_id := watch_playlist.get("lyrics"):
             return ytm.get_lyrics(lyrics_id)["lyrics"]
 
-    thumbnail_url = f"https://i.ytimg.com/vi/{video['videoId']}/maxresdefault.jpg"
-
     metadata = {
         "id": video["videoId"],
         "duration": video["duration_seconds"],
@@ -112,7 +110,11 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
     }
 
     if not use_yt:
-        metadata["metadata"]["album_art"] = lambda: retry_on_fail(lambda: requests.get(thumbnail_url).content)
+        metadata["metadata"]["album_art"] = lambda: retry_on_fail(
+            lambda: requests.get(
+                video["thumbnails"][0]["url"].replace("=w60-h60-l90-rj", "=w640-h640-l90-rj")
+            ).content
+        )
 
     return metadata
 
