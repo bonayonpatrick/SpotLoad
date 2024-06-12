@@ -83,11 +83,6 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
             if duration == 0 or (abs(result['duration_seconds'] - duration) < delta):
                 _items[f"{artist} - {result['title']}"] = result
 
-    def _prefix_action(track_id):
-        if result := spotify.track(track_id=track_id):
-            return result
-        print("invalid track id")
-
     video: dict
     video, index = choose_items(
         title=f"Choose Audio from YouTube Music:",
@@ -102,7 +97,9 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
         if lyrics_id := watch_playlist.get("lyrics"):
             return ytm.get_lyrics(lyrics_id)["lyrics"]
 
-    return {
+    thumbnail_url = f"https://i.ytimg.com/vi/{video['videoId']}/maxresdefault.jpg"
+
+    metadata = {
         "id": video["videoId"],
         "duration": video["duration_seconds"],
         "metadata": {
@@ -110,9 +107,14 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
             "artist": [artist["name"] for artist in video["artists"]],
             "album": album["name"] if (album := video.get("album")) else "Unknown Album",
             "lyrics": get_lyrics if not use_yt else None,
-            "comment": f"https://www.youtube.com/watch?v={video['videoId']}"
+            "comment": video['videoId']
         }
     }
+
+    if not use_yt:
+        metadata["metadata"]["album_art"] = lambda: retry_on_fail(lambda: requests.get(thumbnail_url).content),
+
+    return metadata
 
 
 def search_query(query, auto=False, use_yt=False, delta=10):
@@ -134,7 +136,12 @@ def search_query(query, auto=False, use_yt=False, delta=10):
     del video["metadata"]["title"]
     del video["metadata"]["artist"]
 
-    metadata.update(video["metadata"])
-    video_id = video["id"]
+    if "album_art" in metadata["metadata"]:
+        del video["metadata"]["album_art"]
 
-    return track["id"], video_id, metadata
+    # update comments to include spotify id
+    video["metadata"]["comment"] = f"{track['id']};{video['metadata']['comment']}"
+
+    metadata.update(video["metadata"])
+
+    return track["id"], video["id"], metadata

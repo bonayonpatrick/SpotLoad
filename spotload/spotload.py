@@ -82,6 +82,9 @@ class SpotLoad:
             print("Downloading Lyrics Metadata...")
             metadata["lyrics"] = lyrics()
 
+        if metadata["lyrics"] is None:
+            del metadata["lyrics"]
+
         filename = os.listdir(tmp_dir)[0]
         audio_path_tmp, audio_path = f"{tmp_dir}/{filename}", f"{self.directory}/{filename}"
 
