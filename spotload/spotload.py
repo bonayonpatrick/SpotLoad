@@ -5,7 +5,6 @@ import tempfile
 from datetime import datetime
 
 import mutagen
-from pathvalidate import sanitize_filename
 
 from .utils import concat_comma, reformat_opus, download_video
 
