@@ -74,7 +74,11 @@ class SpotLoad:
 
         if not os.path.exists(filepath):
             download_tmp = f"{tempfile.gettempdir()}/spotload.{int(datetime.now().timestamp())}.webm"
-            download_video(download_tmp, f"https://youtu.be/{video_id}")
+            code = download_video(download_tmp, f"https://youtu.be/{video_id}")
+
+            if code != 0:
+                print(f"[{code}] Unknown error from yt-dlp")
+                exit(code)
 
             if audio_type == "mp3":
                 print(f"Converting file to MP3...")
