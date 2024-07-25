@@ -5,6 +5,7 @@ import tempfile
 from datetime import datetime
 
 import mutagen
+from pathvalidate import sanitize_filename
 
 from .utils import concat_comma, reformat_opus, download_video
 
@@ -69,7 +70,8 @@ class SpotLoad:
         }
 
     def download(self, video_id, metadata, audio_type="opus"):
-        filepath = f"{self.directory}/{concat_comma(metadata['artist'])} - {metadata['title']}.{audio_type}"
+        filename = sanitize_filename(f"{concat_comma(metadata['artist'])} - {metadata['title']}.{audio_type}")
+        filepath = f"{self.directory}/{filename}"
 
         if not os.path.exists(filepath):
             download_tmp = f"{tempfile.gettempdir()}/spotload.{int(datetime.now().timestamp())}.webm"
@@ -129,8 +131,6 @@ class SpotLoad:
                 audio_file[id3_tags[key]] = getattr(id3, id3_tags[key])(encoding=3, text=val)
 
         audio_file.save(v2_version=3)
-        # new_name = f"{concat_comma(tags['artist'])} - {tags['title']}.mp3"
-        # shutil.move(file_path, f"{os.path.dirname(file_path)}/{sanitize_filename(new_name)}")
 
     def bind_opus(self, file_path, tags):
         from mutagen.oggopus import OggOpus
@@ -158,5 +158,3 @@ class SpotLoad:
                 audio[opus_tags[key]] = val
 
         audio.save()
-        # new_name = f"{concat_comma(tags['artist'])} - {tags['title']}.opus"
-        # shutil.move(file_path, f"{os.path.dirname(file_path)}/{sanitize_filename(new_name)}")
