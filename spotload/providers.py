@@ -65,9 +65,36 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
     ytm = YTMusic()
     video_id = None
 
+    def get_lyrics(_video_id=None):
+        watch_playlist = ytm.get_watch_playlist(_video_id)
+        if lyrics_id := watch_playlist.get("lyrics"):
+            return ytm.get_lyrics(lyrics_id)["lyrics"]
+
     if query.startswith("https://"):
         video_id = extract_video_id(query)
-        results = ytm.search(video_id)
+        song_data = ytm.get_song(video_id)
+        video_details = song_data["videoDetails"]
+
+        metadata = {
+            "id": video_id,
+            "duration": video_details["lengthSeconds"],
+            "metadata": {
+                "title": remove_extra_parentheses(video_details["title"]),
+                "artist": [remove_extra_parentheses(video_details["author"])],
+                "album": "Unknown Album",
+                "lyrics": lambda: get_lyrics(video_id) if not use_yt else None,
+                "comment": video_id
+            }
+        }
+
+        if not use_yt:
+            metadata["metadata"]["album_art"] = lambda: retry_on_fail(
+                lambda: requests.get(
+                    video_details["thumbnail"]["thumbnails"][0]["url"].replace("=w60-h60", "=w640-h640")
+                ).content
+            )
+
+        return metadata
     else:
         results = ytm.search(query)
 
@@ -92,10 +119,6 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
 
     video = video or list(_items.values())[index]
 
-    def get_lyrics():
-        watch_playlist = ytm.get_watch_playlist(video["videoId"])
-        if lyrics_id := watch_playlist.get("lyrics"):
-            return ytm.get_lyrics(lyrics_id)["lyrics"]
 
     metadata = {
         "id": video["videoId"],
@@ -104,7 +127,7 @@ def choose_from_youtube_music(query: str, duration=0, delta=6, auto=False, use_y
             "title": remove_extra_parentheses(video["title"]),
             "artist": [remove_extra_parentheses(artist["name"]) for artist in video["artists"]],
             "album": remove_extra_parentheses(album["name"]) if (album := video.get("album")) else "Unknown Album",
-            "lyrics": get_lyrics if not use_yt else None,
+            "lyrics": lambda: get_lyrics(video["videoId"]) if not use_yt else None,
             "comment": video['videoId']
         }
     }

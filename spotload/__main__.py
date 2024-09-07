@@ -5,7 +5,7 @@ import requests.exceptions
 
 from spotload import DEFAULT_DIR_PATH, SpotLoad
 from spotload.providers import choose_from_youtube_music, search_query
-from spotload.utils import valid_directory, set_default_directory, download_video
+from spotload.utils import valid_directory, set_default_directory
 
 
 def run():
@@ -16,7 +16,8 @@ def run():
     except requests.exceptions.ConnectionError:
         print("Unreachable network.")
     except KeyError as e:
-        print(e)
+        print(f"KeyError: {e}")
+
 
 def main():
     parser = argparse.ArgumentParser(prog='spotload')
@@ -56,6 +57,5 @@ def main():
 
 if __name__ == '__main__':
     run()
-
 
 # TODO: add prefix input inside of item selection interpretation
