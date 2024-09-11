@@ -1,3 +1,4 @@
+yt-dlp
 spotipy==2.22.1
 ytmusicapi==1.7.2
 pathvalidate==2.5.2
