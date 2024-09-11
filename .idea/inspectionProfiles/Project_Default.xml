@@ -1,0 +1,63 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="7">
+            <item index="0" class="java.lang.String" itemvalue="httplib2" />
+            <item index="1" class="java.lang.String" itemvalue="urllib3" />
+            <item index="2" class="java.lang.String" itemvalue="python-youtube-music" />
+            <item index="3" class="java.lang.String" itemvalue="scraper" />
+            <item index="4" class="java.lang.String" itemvalue="cfscrape" />
+            <item index="5" class="java.lang.String" itemvalue="cloudscraper" />
+            <item index="6" class="java.lang.String" itemvalue="requests" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyPep8NamingInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="N801" />
+        </list>
+      </option>
+      <option name="ignoredBaseClasses">
+        <list>
+          <option value="unittest.TestCase" />
+          <option value="unittest.case.TestCase" />
+          <option value="chatbot.fbchat_client_debugger.Client" />
+          <option value="chatbot.fbchat_client_debugger.Client" />
+          <option value="chatbot.fbchat_client_debugger.Client" />
+          <option value="chatbot.fbchat_client_debugger.Client" />
+          <option value="chatbot.fbchat_client_debugger.Client" />
+          <option value="chatbot.fbchat_client_debugger.Client" />
+          <option value="chatbot.fbchat_client_debugger.Client" />
+          <option value="chatbot.fbchat_client_debugger.Client" />
+          <option value="chatbot.fbchat_client_debugger.Client" />
+          <option value="chatbot.fbchat_client_debugger.Client" />
+          <option value="chatbot.fbchat_client_debugger.Client" />
+          <option value="bot_client.client.FacebookBotClient" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyShadowingBuiltinsInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredNames">
+        <list>
+          <option value="dir" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="requests.cookies" />
+          <option value="types.ModuleType.*" />
+          <option value="ytm.YouTubeMusic" />
+          <option value="requests.exceptions.JSONDecodeError" />
+          <option value="spotload.ytm.YouTubeMusic" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
