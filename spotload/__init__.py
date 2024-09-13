@@ -7,7 +7,7 @@ from ytmusicapi import YTMusic
 from .utils import create_temp
 
 DEFAULT_DIR_FILEPATH = f"{Path.home()}/.spotload_dir"
-DEFAULT_DIR_PATH = None
+DEFAULT_DIR_PATH = "."
 
 if os.path.exists(DEFAULT_DIR_FILEPATH):
     with open(DEFAULT_DIR_FILEPATH) as f:
