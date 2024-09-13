@@ -65,7 +65,7 @@ def choose_items(title: str, items: list[tuple[str, Any]], match: str = None, au
 
     for i, (key, item) in enumerate(items, 1):
         print(f" {str(i):>2}: {key}")
-        if key == match:
+        if match and key.lower() == match.lower():
             matches.append(i - 1)
 
     while True:
