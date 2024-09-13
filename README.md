@@ -23,7 +23,7 @@ python main.py --default-dir "/storage/emulated/0/Music"
 - **Download Music with Spotify Metadata:**
 
   ```bash
-  python main.py --mode spot-ytm "colbreakz 10000"
+  python main.py "colbreakz 10000"
   ```
 
 - **Download Music with Spotify Metadata from a URL:**
