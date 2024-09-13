@@ -76,7 +76,8 @@ def search_query(
     yt_auto=False,
     delta=10,
     use_ytm=True,
-    use_ytm_album=True
+    use_ytm_album=False,
+    use_ytm_title=False
 ) -> TrackMetadata:
     track = spotify_search(query=query)
 
@@ -91,7 +92,8 @@ def search_query(
     return TrackMetadata.create(
         video=video,
         track=track,
-        use_ytm_album=use_ytm_album if use_ytm else False
+        use_ytm_album=use_ytm_album if use_ytm else False,
+        use_ytm_title=use_ytm_title
     )
 
 

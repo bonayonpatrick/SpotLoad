@@ -171,24 +171,33 @@ class TrackMetadata:
         return f"{utils.concat_comma(self.artists)} - {self.title}"
 
     @classmethod
-    def create(cls, video: YoutubeTrack, track: SpotifyTrack = None, use_ytm_album=False):
+    def create(
+        cls,
+        video: YoutubeTrack,
+        track: SpotifyTrack = None,
+        use_ytm_album=False,
+        use_ytm_title=False
+    ):
         if track:
             track = replace(track)
 
             if use_ytm_album:
                 track.album = video.album
                 track.album_art_url = video.album_art_url
+                album_art = video.album_art
+            else:
+                album_art = track.album_art
 
             return cls(
                 spotify=track,
                 youtube=video,
 
                 album=track.album,
-                title=track.title,
+                title=video.title if use_ytm_title else track.title,
                 artists=track.artists,
                 track_number=track.track_number,
                 disc_number=track.disc_number,
-                album_art=track.album_art,
+                album_art=album_art,
                 genre=track.genre,
                 year=track.year,
                 comment=f"{track.id}:{video.comment}",

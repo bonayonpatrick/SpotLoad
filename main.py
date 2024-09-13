@@ -31,6 +31,8 @@ def main():
 
     parser.add_argument('--delta', type=int, default=10)
     parser.add_argument('--use-ytm-album', action="store_true")
+    parser.add_argument('--use-ytm-title', action="store_true")
+
     parser.add_argument('--yt-arg', type=str)
     parser.add_argument("--auto", action="store_true")
     parser.add_argument('arg')
@@ -59,6 +61,7 @@ def main():
             use_ytm=args.mode == 'spot-ytm',
             delta=args.delta,
             use_ytm_album=args.use_ytm_album,
+            use_ytm_title=args.use_ytm_title,
             yt_auto=args.auto
         )
 
