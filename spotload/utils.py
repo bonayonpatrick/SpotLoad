@@ -118,7 +118,10 @@ def extract_video_id(url):
     if parsed_url.netloc == "youtu.be":
         video_id = parsed_url.path.replace("/", "")
     elif parsed_url.netloc in ["music.youtube.com", "youtube.com", "m.youtube.com", "www.youtube.com"]:
-        video_id = parse_qs(parsed_url.query).get("v", [None])[0]
+        if 'shorts' in parsed_url.path:
+            video_id = parsed_url.path.split('/')[2]
+        else:
+            video_id = parse_qs(parsed_url.query).get("v", [None])[0]
 
     return video_id
 
