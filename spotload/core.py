@@ -108,7 +108,7 @@ def download_video(filepath: str, urls: list[str] | str) -> int:
 
     return os.system(" ".join([
         f'yt-dlp',
-        f'-f "bestaudio[ext=webm]"',
+        f'-f "bestaudio[ext=webm]/bestaudio[ext=m4a]"',
         f'-o "{filepath}"',
         f'--external-downloader aria2c' if shutil.which("aria2c") else "",
         f'--fragment-retries 999',
