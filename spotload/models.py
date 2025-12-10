@@ -97,7 +97,8 @@ class YoutubeTrack:
         watch_playlist = ytm.get_watch_playlist(self.id)
         if lyrics_id := watch_playlist.get('lyrics'):
             print("..")
-            return ytm.get_lyrics(lyrics_id)['lyrics']
+            if lyrics := ytm.get_lyrics(lyrics_id):
+                return lyrics['lyrics']
         print()
 
     @property
