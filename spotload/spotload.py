@@ -39,8 +39,6 @@ def youtube_search(query: str, duration=0, use_ytm=False, delta=5, auto=False) -
     for result in result:
         if result['resultType'] == ('song' if use_ytm else 'video'):
             track = YoutubeTrack.from_video(result)
-            print(result)
-
             if video_id and video_id != result["videoId"]:
                 continue
             if result["videoType"] == "MUSIC_VIDEO_TYPE_ATV" and result["duration"] is None:
@@ -55,7 +53,7 @@ def youtube_search(query: str, duration=0, use_ytm=False, delta=5, auto=False) -
 
     video = utils.choose_items(
         title=f"Choose Audio from YouTube Music:",
-        items=[(f"{track.name} [{track.duration}]", track) for track in tracks],
+        items=[(f"{track.name}", track) for track in tracks],
         match=query,
         auto=auto
     )
