@@ -119,7 +119,7 @@ class YoutubeTrack:
     def from_video(cls, video: dict):
         return cls(
             id=video['videoId'],
-            duration=video['duration_seconds'],
+            duration=video.get('duration_seconds'),
 
             title=utils.remove_extra_parentheses(video['title']),
             artists=[utils.remove_extra_parentheses(artist['name']) for artist in video['artists']],

@@ -34,15 +34,18 @@ def spotify_search(query: str) -> SpotifyTrack:
 def youtube_search(query: str, duration=0, use_ytm=False, delta=5, auto=False) -> YoutubeTrack:
     video_id = extract_video_id(query)
     result = ytm.search(video_id or query)
-
+    # https://music.youtube.com/watch?v=oUNOZoucEZg&si=ydB8zK0VZBLsVUlm
     tracks = []
     for result in result:
         if result['resultType'] == ('song' if use_ytm else 'video'):
+            track = YoutubeTrack.from_video(result)
+            print(result)
+
             if video_id and video_id != result["videoId"]:
                 continue
-
-            if result.get("duration_seconds"):  # FIXME: just ignore the empty duration videos for now
-                track = YoutubeTrack.from_video(result)
+            if result["videoType"] == "MUSIC_VIDEO_TYPE_OMV" and result["duration"] is None:
+                tracks.append(track)
+            elif result.get("duration_seconds"):  # FIXME: just ignore the empty duration videos for now
                 if not use_ytm:  # remove album art when using yt
                     track.album_art_url = None
                 if len(track.artists) == 0:
@@ -52,7 +55,7 @@ def youtube_search(query: str, duration=0, use_ytm=False, delta=5, auto=False) -
 
     video = utils.choose_items(
         title=f"Choose Audio from YouTube Music:",
-        items=[(track.name, track) for track in tracks],
+        items=[(f"{track.name} [{track.duration}]", track) for track in tracks],
         match=query,
         auto=auto
     )

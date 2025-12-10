@@ -1,6 +1,6 @@
 yt-dlp
 spotipy==2.22.1
-ytmusicapi==1.7.2
+ytmusicapi
 pathvalidate==2.5.2
 mutagen==1.46.0
 ffmpeg-python==0.2.0
