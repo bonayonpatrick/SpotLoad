@@ -43,7 +43,7 @@ def youtube_search(query: str, duration=0, use_ytm=False, delta=5, auto=False) -
 
             if video_id and video_id != result["videoId"]:
                 continue
-            if result["videoType"] == "MUSIC_VIDEO_TYPE_OMV" and result["duration"] is None:
+            if result["videoType"] == "MUSIC_VIDEO_TYPE_ATV" and result["duration"] is None:
                 tracks.append(track)
             elif result.get("duration_seconds"):  # FIXME: just ignore the empty duration videos for now
                 if not use_ytm:  # remove album art when using yt
