@@ -5,7 +5,7 @@ from .models import SpotifyTrack, YoutubeTrack, TrackMetadata
 from .utils import extract_video_id
 
 
-def spotify_search(query: str) -> SpotifyTrack:
+def spotify_search(query: str, duration=0, delta=5) -> SpotifyTrack:
     track_id = utils.extract_track_id(query)
 
     tracks = []
@@ -17,7 +17,10 @@ def spotify_search(query: str) -> SpotifyTrack:
         result = spotify.search(q=query)
         for track in result['tracks']['items']:
             if track['type'] == 'track':
-                tracks.append(SpotifyTrack.from_track(track))
+                track = SpotifyTrack.from_track(track)
+                if duration and abs(track.duration - duration) > delta:
+                    continue
+                tracks.append(track)
 
     track = utils.choose_items(
         title=f"Choose Metadata from Spotify:",

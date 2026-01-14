@@ -8,7 +8,7 @@ from pathvalidate import sanitize_filename
 from spotload import DEFAULT_DIR_PATH
 from spotload.core import download
 from spotload.models import TrackMetadata
-from spotload.spotload import search_query, youtube_search, spotify_album
+from spotload.spotload import search_query, youtube_search, spotify_album, spotify_search
 from spotload.utils import set_default_directory, valid_directory, create_folder
 
 
@@ -23,7 +23,7 @@ def run():
 
 def main():
     parser = argparse.ArgumentParser(prog='spotload')
-    parser.add_argument('--mode', choices=['spot-ytm', 'spot-yt', 'ytm', 'yt', 'spot-album'], default='spot-ytm')
+    parser.add_argument('--mode', choices=['spot-ytm', 'spot-yt', 'ytm', 'yt', 'spot-album', 'ytm-spot'], default='spot-ytm')
     parser.add_argument('--format', choices=['mp3', 'opus'], default='opus')
 
     parser.add_argument('--default-dir', type=set_default_directory)
@@ -54,6 +54,10 @@ def main():
     if args.mode in ['ytm', 'yt']:
         video = youtube_search(query=args.arg, use_ytm=args.mode == 'ytm')
         track_metadata = TrackMetadata.create(video)
+    elif args.mode in ['ytm-spot', 'yt-spot']:
+        video = youtube_search(query=args.arg, use_ytm=args.mode == 'ytm-spot')
+        track = spotify_search(query=video.title, duration=video.duration)
+        track_metadata = TrackMetadata.create(video=video, track=track)
     else:
         track_metadata = search_query(
             query=args.arg,

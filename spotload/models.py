@@ -40,7 +40,8 @@ class SpotifyTrack:
     @property
     def genre(self):
         print("Downloading Genre Metadata...")
-        return spotify.artist(self.artist_url)['genres']
+        # return spotify.artist(self.artist_url)['genres']
+        return None
 
     @classmethod
     def from_track(cls, track):
